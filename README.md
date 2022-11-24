@@ -1,1 +1,2 @@
 - 嘗試自己做一個mongodb 的 orm
+- cp .env.example .env
