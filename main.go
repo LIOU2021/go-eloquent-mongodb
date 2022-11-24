@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github/LIOU2021/go-eloquent-mongodb/repositories"
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -12,7 +12,9 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	DB := os.Getenv("mongodb_name")
 
-	fmt.Println(DB)
+	userRepo := repositories.NewUserRepository()
+	userAll := userRepo.Orm.All()
+
+	fmt.Println(userAll)
 }

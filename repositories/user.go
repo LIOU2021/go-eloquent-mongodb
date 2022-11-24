@@ -3,11 +3,11 @@ package repositories
 import "github/LIOU2021/go-eloquent-mongodb/orm"
 
 type UserRepository struct {
-	orm orm.IEloquent
+	Orm orm.IEloquent
 }
 
-func NewUserModel() *UserRepository {
+func NewUserRepository() *UserRepository {
 	return &UserRepository{
-		orm: orm.NewEloquent("users"),
+		Orm: orm.NewEloquent("users"),
 	}
 }
