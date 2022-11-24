@@ -5,6 +5,7 @@ import (
 	"github/LIOU2021/go-eloquent-mongodb/logger"
 	"os"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
@@ -18,7 +19,7 @@ type Eloquent struct {
 
 type IEloquent interface {
 	All(models interface{}) bool
-	Find(id string) *Model
+	Find(id string, model interface{}) bool
 	Insert(data interface{}) (ok bool)
 	Delete(filter interface{}) (ok bool)
 	Update(filter interface{}, data interface{}) (ok bool)
@@ -80,13 +81,29 @@ func (e *Eloquent) All(models interface{}) bool {
 	return true
 }
 
-func (e *Eloquent) Find(id string) *Model {
-	// idH, err := primitive.ObjectIDFromHex(id)
-	// if err != nil {
-	// 	logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
-	// }
+func (e *Eloquent) Find(id string, model interface{}) bool {
+	idH, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+	}
 
-	return &Model{}
+	client := e.connect()
+
+	defer e.close(client)
+
+	coll := e.getCollection(client)
+
+	err = coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
+
+	if err == mongo.ErrNoDocuments {
+		logger.LogDebug.Errorf("collection %s - record does not exist %v =>", e.Collection, err)
+		return false
+	} else if err != nil {
+		logger.LogDebug.Errorf("collection %s - FindOne with error %v =>", e.Collection, err)
+		return false
+	}
+
+	return true
 }
 
 func (e *Eloquent) Insert(data interface{}) (ok bool) {

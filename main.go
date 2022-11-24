@@ -13,9 +13,13 @@ func main() {
 
 	userService := services.NewUserService()
 	userAll, _ := userService.All()
+	logger.LogDebug.Info("[userService@All]")
 	for i, v := range userAll {
 		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d\n", i, v.ID, v.Name, v.Age)
 	}
+
+	userFind, _ := userService.Find("637f9af09c9fe8db039b144b")
+	logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d\n", userFind.ID, userFind.Name, userFind.Age)
 
 	close()
 }
