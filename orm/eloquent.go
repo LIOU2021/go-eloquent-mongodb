@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -29,7 +28,7 @@ func NewEloquent(collection string) *Eloquent {
 	return &Eloquent{
 		db:         os.Getenv("mongodb_name"),
 		Collection: collection,
-		uri:        fmt.Sprintf("mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority", os.Getenv("mongodb_user"), os.Getenv("mongodb_password"), os.Getenv("mongodb_host"), os.Getenv("mongodb_port")),
+		uri:        getUri(),
 	}
 }
 
@@ -47,15 +46,12 @@ func (e *Eloquent) All() (results []*bson.M) {
 			panic(err)
 		}
 	}()
+
 	coll := client.Database(e.db).Collection(e.Collection)
 
 	cursor, err := coll.Find(context.TODO(), bson.M{})
 
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			fmt.Printf("No document was found for collection %s\n", e.Collection)
-			return
-		}
 		panic(err)
 	}
 
