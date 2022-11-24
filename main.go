@@ -26,7 +26,7 @@ func main() {
 	}
 
 	for i, v := range userAll {
-		fmt.Printf("index : %d, value : %v\n", i, v)
+		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d\n", i, v.ID, v.Name, v.Age)
 	}
 
 	logger.Close()
