@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github/LIOU2021/go-eloquent-mongodb/logger"
 	"github/LIOU2021/go-eloquent-mongodb/models"
 	"github/LIOU2021/go-eloquent-mongodb/repositories"
 	"log"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+	logger.Init()
+
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -25,4 +28,6 @@ func main() {
 	for i, v := range userAll {
 		fmt.Printf("index : %d, value : %v\n", i, v)
 	}
+
+	logger.Close()
 }

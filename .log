@@ -1,0 +1,2 @@
+INFO : 2022/11/25 01:18:02.424877 logger.go:24: This will log to the log file and the system log
+INFO : 2022/11/25 01:18:02.467662 logger.go:26: This is the same as using loggerOne

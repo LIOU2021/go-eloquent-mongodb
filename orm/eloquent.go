@@ -2,7 +2,7 @@ package orm
 
 import (
 	"context"
-	"fmt"
+	"github/LIOU2021/go-eloquent-mongodb/logger"
 	"log"
 	"os"
 
@@ -40,13 +40,13 @@ func (e *Eloquent) All(models interface{}) bool {
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		fmt.Println(err)
+		logger.LogDebug.Error(err)
 		return false
 	}
 
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
-			fmt.Println(err)
+			logger.LogDebug.Error(err)
 		}
 	}()
 
@@ -55,12 +55,12 @@ func (e *Eloquent) All(models interface{}) bool {
 	cursor, err := coll.Find(context.TODO(), bson.M{})
 
 	if err != nil {
-		fmt.Println(err)
+		logger.LogDebug.Error(err)
 		return false
 	}
 
 	if err = cursor.All(context.TODO(), models); err != nil {
-		fmt.Println(err)
+		logger.LogDebug.Error(err)
 		return false
 
 	}
