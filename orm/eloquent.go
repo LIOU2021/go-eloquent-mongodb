@@ -1,7 +1,9 @@
 package orm
 
+import "os"
+
 type Eloquent struct {
-	DB         string
+	DB         string //db name
 	Collection string
 }
 
@@ -15,7 +17,7 @@ type IEloquent interface {
 
 func NewEloquent(collection string) *Eloquent {
 	return &Eloquent{
-		DB:         "go-eloquent-mongodb",
+		DB:         os.Getenv("mongodb_name"),
 		Collection: collection,
 	}
 }
