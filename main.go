@@ -16,5 +16,7 @@ func main() {
 	userRepo := repositories.NewUserRepository()
 	userAll := userRepo.Orm.All()
 
-	fmt.Println(userAll)
+	for i, v := range userAll {
+		fmt.Printf("index : %d, value : %v\n", i, v)
+	}
 }
