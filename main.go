@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github/LIOU2021/go-eloquent-mongodb/models"
 	"github/LIOU2021/go-eloquent-mongodb/repositories"
 	"log"
 
@@ -14,7 +15,12 @@ func main() {
 	}
 
 	userRepo := repositories.NewUserRepository()
-	userAll := userRepo.Orm.All()
+	userAll := []*models.User{}
+	userAllOk := userRepo.Orm.All(&userAll)
+
+	if !userAllOk {
+		fmt.Println("user all query fail !")
+	}
 
 	for i, v := range userAll {
 		fmt.Printf("index : %d, value : %v\n", i, v)

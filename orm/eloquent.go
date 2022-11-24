@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -17,7 +18,7 @@ type Eloquent struct {
 }
 
 type IEloquent interface {
-	All() (results []*bson.M)
+	All(models interface{}) bool
 	Find(id string) *Model
 	Insert(data interface{}) (ok bool)
 	Delete(filter interface{}) (ok bool)
@@ -32,18 +33,20 @@ func NewEloquent(collection string) *Eloquent {
 	}
 }
 
-func (e *Eloquent) All() (results []*bson.M) {
+func (e *Eloquent) All(models interface{}) bool {
 	uri := e.uri
 	if uri == "" {
 		log.Fatal("You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
+
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 	}()
 
@@ -52,13 +55,17 @@ func (e *Eloquent) All() (results []*bson.M) {
 	cursor, err := coll.Find(context.TODO(), bson.M{})
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		panic(err)
+	if err = cursor.All(context.TODO(), models); err != nil {
+		fmt.Println(err)
+		return false
+
 	}
-	return
+
+	return true
 }
 
 func (e *Eloquent) Find(id string) *Model {
