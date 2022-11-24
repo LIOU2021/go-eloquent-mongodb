@@ -3,7 +3,6 @@ package orm
 import (
 	"context"
 	"github/LIOU2021/go-eloquent-mongodb/logger"
-	"log"
 	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,24 +32,37 @@ func NewEloquent(collection string) *Eloquent {
 	}
 }
 
-func (e *Eloquent) All(models interface{}) bool {
+func (e *Eloquent) connect() (client *mongo.Client) {
 	uri := e.uri
 	if uri == "" {
-		log.Fatal("You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
+		logger.LogDebug.Error("You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
+		os.Exit(0)
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		logger.LogDebug.Error(err)
-		return false
+		os.Exit(0)
 	}
 
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			logger.LogDebug.Error(err)
-		}
-	}()
+	return client
+}
 
-	coll := client.Database(e.db).Collection(e.Collection)
+func (e *Eloquent) close(client *mongo.Client) {
+	if err := client.Disconnect(context.TODO()); err != nil {
+		logger.LogDebug.Error(err)
+	}
+}
+
+func (e *Eloquent) getCollection(client *mongo.Client) *mongo.Collection {
+	return client.Database(e.db).Collection(e.Collection)
+}
+
+func (e *Eloquent) All(models interface{}) bool {
+	client := e.connect()
+
+	defer e.close(client)
+
+	coll := e.getCollection(client)
 
 	cursor, err := coll.Find(context.TODO(), bson.M{})
 
@@ -69,6 +81,11 @@ func (e *Eloquent) All(models interface{}) bool {
 }
 
 func (e *Eloquent) Find(id string) *Model {
+	// idH, err := primitive.ObjectIDFromHex(id)
+	// if err != nil {
+	// 	logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+	// }
+
 	return &Model{}
 }
 
