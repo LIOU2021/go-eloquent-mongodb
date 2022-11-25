@@ -2,6 +2,7 @@ package test
 
 import (
 	"github/LIOU2021/go-eloquent-mongodb/logger"
+	"github/LIOU2021/go-eloquent-mongodb/test/models"
 	"github/LIOU2021/go-eloquent-mongodb/test/services"
 	"log"
 	"testing"
@@ -47,4 +48,21 @@ func Test_Find(t *testing.T) {
 	assert.True(t, ok, "find not ok")
 	assert.True(t, userFind.ID != "", "id not find")
 	logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
+}
+
+func Test_Insert(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userService := services.NewUserService()
+
+	data := &models.UserCreateData{
+		Name: "c8",
+		Age:  110,
+	}
+
+	insertId, ok := userService.Insert(data)
+	logger.LogDebug.Info("insertId : ", insertId)
+	assert.True(t, ok, "insert not ok")
+	assert.True(t, insertId != "", "id was null")
 }

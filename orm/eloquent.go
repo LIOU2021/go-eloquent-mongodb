@@ -20,7 +20,7 @@ type Eloquent struct {
 type IEloquent interface {
 	All(models interface{}) bool
 	Find(id string, model interface{}) bool
-	Insert(data interface{}) (ok bool)
+	Insert(data interface{}) (insertedID interface{}, ok bool)
 	Delete(filter interface{}) (ok bool)
 	Update(filter interface{}, data interface{}) (ok bool)
 }
@@ -105,7 +105,26 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
 	return true
 }
 
-func (e *Eloquent) Insert(data interface{}) (ok bool) {
+/**
+ * @title insert a document
+ * @param data interface{} your model struct
+ * @return insertedID *primitive.ObjectID ObjectId of mongodb
+ */
+func (e *Eloquent) Insert(data interface{}) (insertedID interface{}, ok bool) {
+	client := e.connect()
+
+	defer e.close(client)
+
+	coll := e.getCollection(client)
+
+	result, err := coll.InsertOne(context.TODO(), data)
+	if err != nil {
+		ok = false
+		panic(err)
+	}
+
+	ok = true
+	insertedID = result.InsertedID
 	return
 }
 

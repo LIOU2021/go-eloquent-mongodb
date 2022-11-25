@@ -17,3 +17,6 @@
 - 多新增幾個不同的model做測試
 # 開始前的作業
 - cp .env.example .env
+
+# Ref
+- https://www.mongodb.com/docs/drivers/go/current/quick-start/
