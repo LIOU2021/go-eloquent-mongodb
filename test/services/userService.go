@@ -44,3 +44,8 @@ func (service *UserService) Insert(user *models.UserCreateData) (_id string, ok 
 	_id = insertId.(primitive.ObjectID).Hex()
 	return
 }
+
+func (service *UserService) Delete(id string) (deleteCount int, ok bool) {
+	deleteCount, ok = service.repo.Orm.Delete(id)
+	return
+}
