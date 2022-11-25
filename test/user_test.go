@@ -67,6 +67,30 @@ func Test_All(t *testing.T) {
 	}
 }
 
+func Test_Update(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userService := services.NewUserService()
+
+	name := "LaLa"
+	age := uint16(30)
+
+	data := &models.UserUpdateData{
+		Name: name,
+		Age:  age,
+	}
+	updateCount, ok := userService.Update(testId, data)
+	assert.True(t, ok, "updateCount not ok")
+	assert.Equal(t, 1, updateCount, "find not ok")
+
+	user, userOk := userService.Find(testId)
+	assert.True(t, userOk, "updateCount for find user not ok")
+	assert.Equal(t, name, user.Name, "update name not working")
+	assert.Equal(t, age, user.Age, "update age not working")
+
+}
+
 func Test_Delete(t *testing.T) {
 	setup()
 	defer cleanup()

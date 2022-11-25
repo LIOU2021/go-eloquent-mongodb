@@ -22,7 +22,7 @@ type IEloquent interface {
 	Find(id string, model interface{}) bool
 	Insert(data interface{}) (insertedID interface{}, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
-	Update(filter interface{}, data interface{}) (ok bool)
+	Update(id string, data interface{}) (modifiedCount int, ok bool)
 }
 
 func NewEloquent(collection string) *Eloquent {
@@ -181,6 +181,32 @@ func (e *Eloquent) Delete(id string) (deleteCount int, ok bool) {
 	return
 }
 
-func (e *Eloquent) Update(filter interface{}, data interface{}) (ok bool) {
+func (e *Eloquent) Update(id string, data interface{}) (modifiedCount int, ok bool) {
+	idH, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		ok = false
+		return
+	}
+
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	filter := bson.M{"_id": idH}
+	update := bson.M{"$set": data}
+
+	result, err := coll.UpdateOne(context.TODO(), filter, update)
+
+	if err != nil {
+		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		ok = false
+		return
+	}
+
+	ok = true
+	modifiedCount = int(result.ModifiedCount)
 	return
 }

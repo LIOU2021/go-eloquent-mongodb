@@ -49,3 +49,9 @@ func (service *UserService) Delete(id string) (deleteCount int, ok bool) {
 	deleteCount, ok = service.repo.Orm.Delete(id)
 	return
 }
+
+func (service *UserService) Update(id string, data *models.UserUpdateData) (updateCount int, ok bool) {
+	data.UpdatedAt = uint64(time.Now().Unix())
+	updateCount, ok = service.repo.Orm.Update(id, data)
+	return
+}
