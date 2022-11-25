@@ -8,13 +8,15 @@
 本專案乃個人嘗試做一個簡潔優雅mongodb 的 orm
 
 # todo
-- create InsertMultiple
-- create DeleteMultiple
-- create UpdateMultiple
-- create FindMultiple
-- create Count
-- create Paginate
-
+- eloquent
+    - create InsertMultiple
+    - create DeleteMultiple
+    - create UpdateMultiple
+    - create FindMultiple
+    - create Count
+    - create Paginate
+- repo
+    - create GetUnderage
 # 開始前的作業
 - cp .env.example .env
 
