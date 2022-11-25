@@ -44,7 +44,7 @@ func Test_Find(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	userFind, ok := userService.Find("6380c2a141c9cfa264b345db")
+	userFind, ok := userService.Find("6380c8a9185309a5944a3171")
 	assert.True(t, ok, "find not ok")
 	assert.True(t, userFind.ID != "", "id not find")
 	logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
