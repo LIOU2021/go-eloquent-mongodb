@@ -2,7 +2,7 @@ package test
 
 import (
 	"github/LIOU2021/go-eloquent-mongodb/logger"
-	"github/LIOU2021/go-eloquent-mongodb/services"
+	"github/LIOU2021/go-eloquent-mongodb/test/services"
 	"log"
 	"testing"
 
@@ -27,10 +27,10 @@ func Test_All(t *testing.T) {
 	defer cleanup()
 
 	userService := services.NewUserService()
-	userAll, _ := userService.All()
-	logger.LogDebug.Info("[userService@All]")
+	userAll, ok := userService.All()
+	assert.True(t, ok, "all not ok")
 	for i, v := range userAll {
 		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d\n", i, v.ID, v.Name, v.Age)
-		assert.True(t, v.ID != "")
+		assert.True(t, v.ID != "", "_id is empty")
 	}
 }

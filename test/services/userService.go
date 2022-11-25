@@ -2,8 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github/LIOU2021/go-eloquent-mongodb/models"
-	"github/LIOU2021/go-eloquent-mongodb/repositories"
+	"github/LIOU2021/go-eloquent-mongodb/test/models"
+	"github/LIOU2021/go-eloquent-mongodb/test/repositories"
 )
 
 type UserService struct {
