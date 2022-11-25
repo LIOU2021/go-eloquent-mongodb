@@ -3,8 +3,8 @@ package test
 import (
 	"github/LIOU2021/go-eloquent-mongodb/core"
 	"github/LIOU2021/go-eloquent-mongodb/logger"
-	"github/LIOU2021/go-eloquent-mongodb/test/models"
-	"github/LIOU2021/go-eloquent-mongodb/test/services"
+	"github/LIOU2021/go-eloquent-mongodb/tests/models"
+	"github/LIOU2021/go-eloquent-mongodb/tests/services"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
