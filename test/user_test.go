@@ -1,26 +1,21 @@
 package test
 
 import (
+	"github/LIOU2021/go-eloquent-mongodb/core"
 	"github/LIOU2021/go-eloquent-mongodb/logger"
 	"github/LIOU2021/go-eloquent-mongodb/test/models"
 	"github/LIOU2021/go-eloquent-mongodb/test/services"
-	"log"
 	"testing"
 
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
 func setup() {
-	logger.Init()
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	core.Setup()
 }
 
 func cleanup() {
-	logger.Close()
+	core.Cleanup()
 }
 
 func Test_All(t *testing.T) {
