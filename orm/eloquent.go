@@ -96,8 +96,7 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
 	err = coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
 
 	if err == mongo.ErrNoDocuments {
-		logger.LogDebug.Errorf("collection %s - record does not exist %v =>", e.Collection, err)
-		return false
+		return true
 	} else if err != nil {
 		logger.LogDebug.Errorf("collection %s - FindOne with error %v =>", e.Collection, err)
 		return false
