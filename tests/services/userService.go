@@ -2,9 +2,10 @@ package services
 
 import (
 	"fmt"
-	"github/LIOU2021/go-eloquent-mongodb/tests/models"
-	"github/LIOU2021/go-eloquent-mongodb/tests/repositories"
 	"time"
+
+	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
+	"github.com/LIOU2021/go-eloquent-mongodb/tests/repositories"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

@@ -1,6 +1,6 @@
 package repositories
 
-import "github/LIOU2021/go-eloquent-mongodb/orm"
+import "github.com/LIOU2021/go-eloquent-mongodb/orm"
 
 type UserRepository struct {
 	Orm orm.IEloquent

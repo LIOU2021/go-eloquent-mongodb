@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github/LIOU2021/go-eloquent-mongodb/logger"
+	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 )
 
 func Cleanup() {
