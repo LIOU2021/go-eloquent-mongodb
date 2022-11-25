@@ -61,3 +61,14 @@ func Test_Insert(t *testing.T) {
 	assert.True(t, ok, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
 }
+
+func Test_Delete(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userService := services.NewUserService()
+
+	deleteCount, ok := userService.Delete("6380c8a9185309a5944a3171")
+	assert.True(t, ok, "delete not ok")
+	assert.Equal(t, 1, deleteCount, "find not ok")
+}
