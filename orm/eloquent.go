@@ -21,7 +21,7 @@ type IEloquent interface {
 	All(models interface{}) bool
 	Find(id string, model interface{}) bool
 	Insert(data interface{}) (insertedID interface{}, ok bool)
-	Delete(filter interface{}) (ok bool)
+	Delete(id string) (deleteCount int, ok bool)
 	Update(filter interface{}, data interface{}) (ok bool)
 }
 
@@ -104,6 +104,7 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		return false
 	}
 
 	client := e.Connect()
@@ -139,7 +140,7 @@ func (e *Eloquent) Insert(data interface{}) (insertedID interface{}, ok bool) {
 	result, err := coll.InsertOne(context.TODO(), data)
 	if err != nil {
 		ok = false
-		panic(err)
+		return
 	}
 
 	ok = true
@@ -147,7 +148,36 @@ func (e *Eloquent) Insert(data interface{}) (insertedID interface{}, ok bool) {
 	return
 }
 
-func (e *Eloquent) Delete(filter interface{}) (ok bool) {
+/**
+ * @title delete a document
+ * @param id string _id of document
+ * @return deleteCount int delete document count
+ * @return ok bool query success or fail
+ */
+func (e *Eloquent) Delete(id string) (deleteCount int, ok bool) {
+	idH, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		ok = false
+		return
+	}
+
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	filter := bson.M{"_id": idH}
+
+	result, err := coll.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		ok = false
+		return
+	}
+
+	ok = true
+	deleteCount = int(result.DeletedCount)
 	return
 }
 
