@@ -1,9 +1,9 @@
 package services
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/repositories"
 
@@ -25,7 +25,8 @@ func (service *UserService) All() (userAll []*models.User, ok bool) {
 	ok = service.repo.Orm.All(&userAll)
 
 	if !ok {
-		fmt.Println("user all query fail !")
+		logger.LogDebug.Error("user all query fail !")
+		return
 	}
 
 	return
