@@ -8,13 +8,13 @@
 本專案乃個人嘗試做一個簡潔優雅mongodb 的 orm
 
 # todo
-- 底下三個eloquent方法還沒改好
-```
-    Insert(data interface{}) (ok bool)
-	Delete(filter interface{}) (ok bool)
-	Update(filter interface{}, data interface{}) (ok bool)
-```
-- 多新增幾個不同的model做測試
+- create InsertMultiple
+- create DeleteMultiple
+- create UpdateMultiple
+- create FindMultiple
+- create Count
+- create Paginate
+
 # 開始前的作業
 - cp .env.example .env
 
