@@ -16,6 +16,7 @@ type Eloquent struct {
 	db         string //db name
 	Collection string
 	uri        string
+	logTitle   string
 }
 
 type IEloquent interface {
@@ -31,6 +32,7 @@ func NewEloquent(collection string) *Eloquent {
 		db:         os.Getenv("mongodb_name"),
 		Collection: collection,
 		uri:        getUri(),
+		logTitle:   getLogTitle(collection),
 	}
 }
 
@@ -40,12 +42,12 @@ func NewEloquent(collection string) *Eloquent {
 func (e *Eloquent) Connect() (client *mongo.Client) {
 	uri := e.uri
 	if uri == "" {
-		logger.LogDebug.Error("You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
+		logger.LogDebug.Error(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo())
 		os.Exit(0)
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		logger.LogDebug.Error(err)
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		os.Exit(0)
 	}
 
@@ -57,7 +59,7 @@ func (e *Eloquent) Connect() (client *mongo.Client) {
  */
 func (e *Eloquent) Close(client *mongo.Client) {
 	if err := client.Disconnect(context.TODO()); err != nil {
-		logger.LogDebug.Error(err)
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 	}
 }
 
@@ -83,12 +85,12 @@ func (e *Eloquent) All(models interface{}) bool {
 	cursor, err := coll.Find(context.TODO(), bson.M{})
 
 	if err != nil {
-		logger.LogDebug.Error(err)
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		return false
 	}
 
 	if err = cursor.All(context.TODO(), models); err != nil {
-		logger.LogDebug.Error(err)
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		return false
 
 	}
@@ -104,7 +106,7 @@ func (e *Eloquent) All(models interface{}) bool {
 func (e *Eloquent) Find(id string, model interface{}) bool {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
 		return false
 	}
 
@@ -119,7 +121,7 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
 	if err == mongo.ErrNoDocuments {
 		return true
 	} else if err != nil {
-		logger.LogDebug.Errorf("collection %s - FindOne with error %v =>", e.Collection, err)
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		return false
 	}
 
@@ -158,7 +160,7 @@ func (e *Eloquent) Insert(data interface{}) (insertedID interface{}, ok bool) {
 func (e *Eloquent) Delete(id string) (deleteCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
 		ok = false
 		return
 	}
@@ -185,7 +187,7 @@ func (e *Eloquent) Delete(id string) (deleteCount int, ok bool) {
 func (e *Eloquent) Update(id string, data interface{}) (modifiedCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
 		ok = false
 		return
 	}
@@ -202,7 +204,7 @@ func (e *Eloquent) Update(id string, data interface{}) (modifiedCount int, ok bo
 	result, err := coll.UpdateOne(context.TODO(), filter, update)
 
 	if err != nil {
-		logger.LogDebug.Errorf("collection - %s : _id Hex fail", e.Collection)
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		ok = false
 		return
 	}

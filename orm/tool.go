@@ -29,5 +29,5 @@ func getLogTitle(collection string) string {
 
 func getCurrentFuncInfo() string {
 	pc, file, line, _ := runtime.Caller(1)
-	return fmt.Sprintf("\nPC:%s\nFILE:%s\nLINE:%d", runtime.FuncForPC(pc).Name(), file, line)
+	return fmt.Sprintf("\nPC:%s\nFILE:%s\nLINE:%d\n", runtime.FuncForPC(pc).Name(), file, line)
 }
