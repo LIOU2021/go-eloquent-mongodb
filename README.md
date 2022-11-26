@@ -7,6 +7,7 @@
 
 本專案乃個人嘗試做一個簡潔優雅mongodb 的 orm
 
+目標為開發出可重複利用、可擴展、容易維護的ORM
 # todo
 - eloquent
     - create InsertMultiple
