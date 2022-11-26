@@ -12,23 +12,23 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type Eloquent struct {
+type Eloquent[t interface{}] struct {
 	db         string //db name
 	Collection string
 	uri        string
 	logTitle   string
 }
 
-type IEloquent interface {
+type IEloquent[T interface{}] interface {
 	All(models interface{}) bool
-	Find(id string, model interface{}) bool
+	Find(id string) (model *T, ok bool)
 	Insert(data interface{}) (insertedID string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
 	Update(id string, data interface{}) (modifiedCount int, ok bool)
 }
 
-func NewEloquent(collection string) *Eloquent {
-	return &Eloquent{
+func NewEloquent[T interface{}](collection string) *Eloquent[T] {
+	return &Eloquent[T]{
 		db:         os.Getenv("mongodb_name"),
 		Collection: collection,
 		uri:        getUri(),
@@ -39,7 +39,7 @@ func NewEloquent(collection string) *Eloquent {
 /**
  * @title creates a new Client connect
  */
-func (e *Eloquent) Connect() (client *mongo.Client) {
+func (e *Eloquent[T]) Connect() (client *mongo.Client) {
 	uri := e.uri
 	if uri == "" {
 		logger.LogDebug.Error(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo())
@@ -57,7 +57,7 @@ func (e *Eloquent) Connect() (client *mongo.Client) {
 /**
  * @title Close connect
  */
-func (e *Eloquent) Close(client *mongo.Client) {
+func (e *Eloquent[T]) Close(client *mongo.Client) {
 	if err := client.Disconnect(context.TODO()); err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 	}
@@ -66,7 +66,7 @@ func (e *Eloquent) Close(client *mongo.Client) {
 /**
  * @title get collection instance
  */
-func (e *Eloquent) GetCollection(client *mongo.Client) *mongo.Collection {
+func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
 	return client.Database(e.db).Collection(e.Collection)
 }
 
@@ -75,7 +75,7 @@ func (e *Eloquent) GetCollection(client *mongo.Client) *mongo.Collection {
  * @param models interface{}
  * @return bool query success or fail
  */
-func (e *Eloquent) All(models interface{}) bool {
+func (e *Eloquent[T]) All(models interface{}) bool {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -101,13 +101,15 @@ func (e *Eloquent) All(models interface{}) bool {
 /**
  * @title find a document by _id
  * @param id string _id of document
- * @return bool query success or fail
+ * @return model your model struct
+ * @return ok bool query success or fail
  */
-func (e *Eloquent) Find(id string, model interface{}) bool {
+func (e *Eloquent[T]) Find(id string) (model *T, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
-		return false
+		ok = false
+		return
 	}
 
 	client := e.Connect()
@@ -115,17 +117,19 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
-
+	model = new(T)
 	err = coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
 
 	if err == mongo.ErrNoDocuments {
-		return true
+		ok = true
+		return
 	} else if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
-		return false
+		ok = false
+		return
 	}
-
-	return true
+	ok = true
+	return
 }
 
 /**
@@ -133,7 +137,7 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
  * @param data interface{} your model struct
  * @return insertedID *primitive.ObjectID ObjectId of mongodb
  */
-func (e *Eloquent) Insert(data interface{}) (insertedID string, ok bool) {
+func (e *Eloquent[T]) Insert(data interface{}) (insertedID string, ok bool) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -157,7 +161,7 @@ func (e *Eloquent) Insert(data interface{}) (insertedID string, ok bool) {
  * @return deleteCount int delete document count
  * @return ok bool query success or fail
  */
-func (e *Eloquent) Delete(id string) (deleteCount int, ok bool) {
+func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
@@ -184,7 +188,7 @@ func (e *Eloquent) Delete(id string) (deleteCount int, ok bool) {
 	return
 }
 
-func (e *Eloquent) Update(id string, data interface{}) (modifiedCount int, ok bool) {
+func (e *Eloquent[T]) Update(id string, data interface{}) (modifiedCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())

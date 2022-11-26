@@ -20,6 +20,54 @@
     - create GetUnderage
 # 開始前的作業
 - cp .env.example .env
+# 建立屬於個別collection的struct
+- 範例如下
+```go
+type User struct {
+	ID        string `bson:"_id"`
+	Name      string `bson:"name"`
+	Age       uint16 `bson:"age"`
+	CreatedAt uint64 `bson:"created_at"`
+	UpdatedAt uint64 `bson:"updated_at"`
+}
+```
+
+# usage example
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/LIOU2021/go-eloquent-mongodb/core"
+	"github.com/LIOU2021/go-eloquent-mongodb/orm"
+)
+
+type User struct {
+	ID        string `bson:"_id"`
+	Name      string `bson:"name"`
+	Age       uint16 `bson:"age"`
+	CreatedAt uint64 `bson:"created_at"`
+	UpdatedAt uint64 `bson:"updated_at"`
+}
+
+func main() {
+	core.Setup()
+	defer core.Cleanup()
+
+	userOrm := orm.NewEloquent[User]("users")
+	id := "6380cf16742f1bd2061f28b8"
+	user, ok := userOrm.Find(id)
+
+	if !ok {
+		log.Fatal("fail !")
+	}
+
+	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", user.ID, user.Name, user.Age, user.CreatedAt, user.UpdatedAt)
+}
+
+```
 
 # Ref
 - https://www.mongodb.com/docs/drivers/go/current/quick-start/
