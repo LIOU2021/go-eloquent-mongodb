@@ -18,8 +18,7 @@ func NewUserService() *UserService {
 }
 
 func (service *UserService) All() (userAll []*models.User, ok bool) {
-	userAll = []*models.User{}
-	ok = service.repo.Orm.All(&userAll)
+	userAll, ok = service.repo.Orm.All()
 	return
 }
 

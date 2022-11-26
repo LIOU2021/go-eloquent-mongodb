@@ -20,7 +20,7 @@ type Eloquent[t interface{}] struct {
 }
 
 type IEloquent[T interface{}] interface {
-	All(models interface{}) bool
+	All() (models []*T, ok bool)
 	Find(id string) (model *T, ok bool)
 	Insert(data interface{}) (insertedID string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
@@ -75,7 +75,7 @@ func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
  * @param models interface{}
  * @return bool query success or fail
  */
-func (e *Eloquent[T]) All(models interface{}) bool {
+func (e *Eloquent[T]) All() (models []*T, ok bool) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -86,16 +86,20 @@ func (e *Eloquent[T]) All(models interface{}) bool {
 
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
-		return false
+		ok = false
+		return
 	}
 
-	if err = cursor.All(context.TODO(), models); err != nil {
+	models = []*T{}
+
+	if err = cursor.All(context.TODO(), &models); err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
-		return false
+		ok = false
+		return
 
 	}
-
-	return true
+	ok = true
+	return
 }
 
 /**

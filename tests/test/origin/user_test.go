@@ -53,20 +53,20 @@ func Test_Find(t *testing.T) {
 	logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
 }
 
-// func Test_All(t *testing.T) {
-// 	setup()
-// 	defer cleanup()
+func Test_All(t *testing.T) {
+	setup()
+	defer cleanup()
 
-// 	userOrm := orm.NewEloquent[models.User]("users")
+	userOrm := orm.NewEloquent[models.User]("users")
 
-// 	userAll, ok := userOrm.All()
-// 	assert.True(t, ok, "all not ok")
-// 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
-// 	for i, v := range userAll {
-// 		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, v.ID, v.Name, v.Age, v.CreatedAt, v.UpdatedAt)
-// 		assert.True(t, v.ID != "", "_id is empty")
-// 	}
-// }
+	userAll, ok := userOrm.All()
+	assert.True(t, ok, "all not ok")
+	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
+	for i, v := range userAll {
+		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, v.ID, v.Name, v.Age, v.CreatedAt, v.UpdatedAt)
+		assert.True(t, v.ID != "", "_id is empty")
+	}
+}
 
 func Test_Update(t *testing.T) {
 	setup()
