@@ -3,6 +3,7 @@ package orm
 import (
 	"fmt"
 	"os"
+	"runtime"
 )
 
 func getUri() (uri string) {
@@ -20,4 +21,13 @@ func getUri() (uri string) {
 
 	uri = fmt.Sprintf("mongodb://%s/?retryWrites=true&w=majority", domain)
 	return
+}
+
+func getLogTitle(collection string) string {
+	return fmt.Sprintf("[collection - %s] : ", collection)
+}
+
+func getCurrentFuncInfo() string {
+	pc, file, line, _ := runtime.Caller(1)
+	return fmt.Sprintf("\nPC:%s\nFILE:%s\nLINE:%d", runtime.FuncForPC(pc).Name(), file, line)
 }
