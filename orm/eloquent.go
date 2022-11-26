@@ -22,7 +22,7 @@ type Eloquent struct {
 type IEloquent interface {
 	All(models interface{}) bool
 	Find(id string, model interface{}) bool
-	Insert(data interface{}) (insertedID interface{}, ok bool)
+	Insert(data interface{}) (insertedID string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
 	Update(id string, data interface{}) (modifiedCount int, ok bool)
 }
@@ -133,7 +133,7 @@ func (e *Eloquent) Find(id string, model interface{}) bool {
  * @param data interface{} your model struct
  * @return insertedID *primitive.ObjectID ObjectId of mongodb
  */
-func (e *Eloquent) Insert(data interface{}) (insertedID interface{}, ok bool) {
+func (e *Eloquent) Insert(data interface{}) (insertedID string, ok bool) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -147,7 +147,7 @@ func (e *Eloquent) Insert(data interface{}) (insertedID interface{}, ok bool) {
 	}
 
 	ok = true
-	insertedID = result.InsertedID
+	insertedID = result.InsertedID.(primitive.ObjectID).Hex()
 	return
 }
 

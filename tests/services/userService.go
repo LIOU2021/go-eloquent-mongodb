@@ -3,11 +3,8 @@ package services
 import (
 	"time"
 
-	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/repositories"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserService struct {
@@ -23,12 +20,6 @@ func NewUserService() *UserService {
 func (service *UserService) All() (userAll []*models.User, ok bool) {
 	userAll = []*models.User{}
 	ok = service.repo.Orm.All(&userAll)
-
-	if !ok {
-		logger.LogDebug.Error("user all query fail !")
-		return
-	}
-
 	return
 }
 
@@ -38,12 +29,11 @@ func (service *UserService) Find(id string) (user *models.User, ok bool) {
 	return
 }
 
-func (service *UserService) Insert(user *models.UserCreateData) (_id string, ok bool) {
+func (service *UserService) Insert(user *models.UserCreateData) (insertId string, ok bool) {
 	user.CreatedAt = uint64(time.Now().Unix())
 	user.UpdatedAt = uint64(time.Now().Unix())
 
-	insertId, ok := service.repo.Orm.Insert(user)
-	_id = insertId.(primitive.ObjectID).Hex()
+	insertId, ok = service.repo.Orm.Insert(user)
 	return
 }
 
