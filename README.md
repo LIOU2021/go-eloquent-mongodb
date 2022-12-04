@@ -44,7 +44,7 @@ import (
 )
 
 type User struct {
-	ID        *string `bson:"_id"`
+	ID        *string `bson:"_id,omitempty"`
 	Name      string `bson:"name"`
 	Age       uint16 `bson:"age"`
 	CreatedAt uint64 `bson:"created_at"`
