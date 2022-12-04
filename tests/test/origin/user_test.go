@@ -7,6 +7,7 @@ import (
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -101,6 +102,18 @@ func Test_Count_All(t *testing.T) {
 	assert.True(t, ok, "count not ok")
 	assert.GreaterOrEqual(t, count, 1, "count not working")
 	t.Logf("total count : %d", count)
+}
+
+func Test_Count_Filter(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
+	count, ok := userOrm.Count(filter)
+	assert.True(t, ok, "count not ok")
+	assert.GreaterOrEqual(t, count, 1, "count not working")
+	t.Logf("filter count : %d", count)
 }
 
 func Test_Delete(t *testing.T) {
