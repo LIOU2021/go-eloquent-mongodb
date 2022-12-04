@@ -27,7 +27,7 @@ func Test_Insert(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	data := &models.UserCreateData{
+	data := &models.User{
 		Name: "c8",
 		Age:  110,
 	}
@@ -49,8 +49,8 @@ func Test_Find(t *testing.T) {
 
 	userFind, ok := userService.Find(testId)
 	assert.True(t, ok, "find not ok")
-	assert.True(t, userFind.ID != "", "id not find")
-	logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
+	assert.True(t, *userFind.ID != "", "id not find")
+	logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
 }
 
 func Test_All(t *testing.T) {
@@ -63,8 +63,8 @@ func Test_All(t *testing.T) {
 	assert.True(t, ok, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
-		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, v.ID, v.Name, v.Age, v.CreatedAt, v.UpdatedAt)
-		assert.True(t, v.ID != "", "_id is empty")
+		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, *v.ID, v.Name, v.Age, v.CreatedAt, v.UpdatedAt)
+		assert.True(t, *v.ID != "", "_id is empty")
 	}
 }
 

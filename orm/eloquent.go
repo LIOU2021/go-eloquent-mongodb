@@ -22,7 +22,8 @@ type Eloquent[t interface{}] struct {
 type IEloquent[T interface{}] interface {
 	All() (models []*T, ok bool)
 	Find(id string) (model *T, ok bool)
-	Insert(data interface{}) (insertedID string, ok bool)
+	Insert(data *T) (insertedID string, ok bool)
+	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
 	Update(id string, data interface{}) (modifiedCount int, ok bool)
 	Count(filter interface{}) (count int, ok bool)
@@ -142,7 +143,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, ok bool) {
  * @param data interface{} your model struct
  * @return insertedID *primitive.ObjectID ObjectId of mongodb
  */
-func (e *Eloquent[T]) Insert(data interface{}) (insertedID string, ok bool) {
+func (e *Eloquent[T]) Insert(data *T) (insertedID string, ok bool) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -161,16 +162,19 @@ func (e *Eloquent[T]) Insert(data interface{}) (insertedID string, ok bool) {
 	return
 }
 
-func (e *Eloquent[t]) InsertMultiple(data []interface{}) (InsertedIDs []string, ok bool) {
+func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, ok bool) {
 	client := e.Connect()
 
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
-
+	var slice []interface{}
+	for _, value := range data {
+		slice = append(slice, value)
+	}
 	InsertedIDs = []string{}
 
-	result, err := coll.InsertMany(context.TODO(), data)
+	result, err := coll.InsertMany(context.TODO(), slice)
 	if err != nil {
 		ok = false
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())

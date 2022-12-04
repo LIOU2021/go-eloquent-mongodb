@@ -27,7 +27,7 @@ func (service *UserService) Find(id string) (user *models.User, ok bool) {
 	return
 }
 
-func (service *UserService) Insert(user *models.UserCreateData) (insertId string, ok bool) {
+func (service *UserService) Insert(user *models.User) (insertId string, ok bool) {
 	user.CreatedAt = uint64(time.Now().Unix())
 	user.UpdatedAt = uint64(time.Now().Unix())
 

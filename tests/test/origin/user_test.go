@@ -30,13 +30,13 @@ func Test_Insert_a_document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	currentTime := uint64(time.Now().Unix())
-	data := &models.UserCreateData{
+
+	data := &models.User{
 		Name:      "c6",
 		Age:       54,
 		CreatedAt: currentTime,
 		UpdatedAt: currentTime,
 	}
-
 	insertId, ok := userOrm.Insert(data)
 	logger.LogDebug.Info("insertId : ", insertId)
 
@@ -45,17 +45,18 @@ func Test_Insert_a_document(t *testing.T) {
 	assert.True(t, ok, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
 }
+
 func Test_InsertMultiple(t *testing.T) {
 	setup()
 	defer cleanup()
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	var data []interface{}
+	var data []*models.User
 	currentTime := uint64(time.Now().Unix())
 	count := 10
 	for i := 0; i < count; i++ {
-		data = append(data, &models.UserCreateData{
+		data = append(data, &models.User{
 			Name:      "c8_" + strconv.FormatInt(int64(i), 10),
 			Age:       uint16(1 + i*10),
 			CreatedAt: currentTime,
@@ -78,8 +79,8 @@ func Test_Find(t *testing.T) {
 
 	userFind, ok := userOrm.Find(testId)
 	assert.True(t, ok, "find not ok")
-	assert.True(t, userFind.ID != "", "id not find")
-	logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
+	assert.True(t, *userFind.ID != "", "id not find")
+	logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, userFind.Name, userFind.Age, userFind.CreatedAt, userFind.UpdatedAt)
 }
 
 func Test_All(t *testing.T) {
@@ -92,8 +93,8 @@ func Test_All(t *testing.T) {
 	assert.True(t, ok, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
-		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, v.ID, v.Name, v.Age, v.CreatedAt, v.UpdatedAt)
-		assert.True(t, v.ID != "", "_id is empty")
+		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, *v.ID, v.Name, v.Age, v.CreatedAt, v.UpdatedAt)
+		assert.True(t, *v.ID != "", "_id is empty")
 	}
 }
 
