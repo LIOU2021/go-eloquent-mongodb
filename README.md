@@ -14,7 +14,6 @@
     - create DeleteMultiple
     - create UpdateMultiple
     - create FindMultiple
-    - create Count
     - create Paginate
 - repo
     - create GetUnderage
