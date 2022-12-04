@@ -152,11 +152,36 @@ func (e *Eloquent[T]) Insert(data interface{}) (insertedID string, ok bool) {
 	result, err := coll.InsertOne(context.TODO(), data)
 	if err != nil {
 		ok = false
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		return
 	}
 
 	ok = true
 	insertedID = result.InsertedID.(primitive.ObjectID).Hex()
+	return
+}
+
+func (e *Eloquent[t]) InsertMultiple(data []interface{}) (InsertedIDs []string, ok bool) {
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	InsertedIDs = []string{}
+
+	result, err := coll.InsertMany(context.TODO(), data)
+	if err != nil {
+		ok = false
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		return
+	}
+
+	for _, id := range result.InsertedIDs {
+		idString := id.(primitive.ObjectID).Hex()
+		InsertedIDs = append(InsertedIDs, idString)
+	}
+	ok = true
 	return
 }
 

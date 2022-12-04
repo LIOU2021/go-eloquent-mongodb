@@ -1,7 +1,9 @@
 package origin
 
 import (
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/LIOU2021/go-eloquent-mongodb/core"
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
@@ -40,6 +42,30 @@ func Test_Insert(t *testing.T) {
 
 	assert.True(t, ok, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
+}
+func Test_InsertMultiple(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+
+	var data []interface{}
+	currentTime := uint64(time.Now().Unix())
+	count := 10
+	for i := 0; i < count; i++ {
+		data = append(data, &models.UserCreateData{
+			Name:      "c8_" + strconv.FormatInt(int64(i), 10),
+			Age:       uint16(1 + i*10),
+			CreatedAt: currentTime,
+			UpdatedAt: currentTime,
+		})
+	}
+
+	InsertedIDs, ok := userOrm.InsertMultiple(data)
+	logger.LogDebug.Info("InsertedIDs  : ", InsertedIDs)
+
+	assert.True(t, ok, "insertMultiple not ok")
+	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
 func Test_Find(t *testing.T) {
