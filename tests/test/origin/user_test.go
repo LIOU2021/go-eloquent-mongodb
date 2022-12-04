@@ -24,15 +24,17 @@ func cleanup() {
 
 var testId string
 
-func Test_Insert(t *testing.T) {
+func Test_Insert_a_document(t *testing.T) {
 	setup()
 	defer cleanup()
 
 	userOrm := orm.NewEloquent[models.User]("users")
-
+	currentTime := uint64(time.Now().Unix())
 	data := &models.UserCreateData{
-		Name: "c8",
-		Age:  110,
+		Name:      "c6",
+		Age:       54,
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
 	}
 
 	insertId, ok := userOrm.Insert(data)
