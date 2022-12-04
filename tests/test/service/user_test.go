@@ -1,7 +1,9 @@
 package service
 
 import (
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/LIOU2021/go-eloquent-mongodb/core"
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
@@ -21,7 +23,7 @@ func cleanup() {
 
 var testId string
 
-func Test_Insert(t *testing.T) {
+func Test_Insert_a_document(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -39,6 +41,31 @@ func Test_Insert(t *testing.T) {
 
 	assert.True(t, ok, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
+}
+
+func Test_InsertMultiple(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userService := services.NewUserService()
+
+	var data []*models.User
+	currentTime := uint64(time.Now().Unix())
+	count := 10
+	for i := 0; i < count; i++ {
+		data = append(data, &models.User{
+			Name:      "serviceT_" + strconv.FormatInt(int64(i), 10),
+			Age:       uint16(1 + i*10),
+			CreatedAt: currentTime,
+			UpdatedAt: currentTime,
+		})
+	}
+
+	InsertedIDs, ok := userService.InsertMultiple(data)
+	logger.LogDebug.Info("InsertedIDs  : ", InsertedIDs)
+
+	assert.True(t, ok, "insertMultiple not ok")
+	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
 func Test_Find(t *testing.T) {

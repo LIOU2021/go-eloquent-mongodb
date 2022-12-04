@@ -35,6 +35,11 @@ func (service *UserService) Insert(user *models.User) (insertId string, ok bool)
 	return
 }
 
+func (service *UserService) InsertMultiple(user []*models.User) (InsertedIDs []string, ok bool) {
+	InsertedIDs, ok = service.repo.Orm.InsertMultiple(user)
+	return
+}
+
 func (service *UserService) Delete(id string) (deleteCount int, ok bool) {
 	deleteCount, ok = service.repo.Orm.Delete(id)
 	return
