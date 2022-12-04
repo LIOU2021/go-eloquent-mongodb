@@ -9,6 +9,7 @@ import (
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/services"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -117,6 +118,29 @@ func Test_Update(t *testing.T) {
 	assert.Equal(t, name, user.Name, "update name not working")
 	assert.Equal(t, age, user.Age, "update age not working")
 
+}
+
+func Test_Count_All(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userService := services.NewUserService()
+	count, ok := userService.Count(nil)
+	assert.True(t, ok, "count not ok")
+	assert.GreaterOrEqual(t, count, 6, "count not working")
+	t.Logf("total count : %d", count)
+}
+
+func Test_Count_Filter(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userService := services.NewUserService()
+	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
+	count, ok := userService.Count(filter)
+	assert.True(t, ok, "count not ok")
+	assert.GreaterOrEqual(t, count, 3, "count not working")
+	t.Logf("filter count : %d", count)
 }
 
 func Test_Delete(t *testing.T) {

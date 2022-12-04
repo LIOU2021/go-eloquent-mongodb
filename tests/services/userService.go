@@ -50,3 +50,8 @@ func (service *UserService) Update(id string, data *models.UserUpdateData) (upda
 	updateCount, ok = service.repo.Orm.Update(id, data)
 	return
 }
+
+func (e *UserService) Count(filter interface{}) (count int, ok bool) {
+	count, ok = e.repo.Orm.Count(filter)
+	return
+}
