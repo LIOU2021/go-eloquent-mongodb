@@ -1,0 +1,1 @@
+import file tests\test\users.json in your mongodb 

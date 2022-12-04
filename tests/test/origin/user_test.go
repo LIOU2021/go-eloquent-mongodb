@@ -100,7 +100,7 @@ func Test_Count_All(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 	count, ok := userOrm.Count(nil)
 	assert.True(t, ok, "count not ok")
-	assert.GreaterOrEqual(t, count, 1, "count not working")
+	assert.GreaterOrEqual(t, count, 6, "count not working")
 	t.Logf("total count : %d", count)
 }
 
@@ -112,7 +112,7 @@ func Test_Count_Filter(t *testing.T) {
 	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
 	count, ok := userOrm.Count(filter)
 	assert.True(t, ok, "count not ok")
-	assert.GreaterOrEqual(t, count, 1, "count not working")
+	assert.GreaterOrEqual(t, count, 3, "count not working")
 	t.Logf("filter count : %d", count)
 }
 
