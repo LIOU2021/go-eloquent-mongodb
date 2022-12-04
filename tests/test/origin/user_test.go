@@ -92,6 +92,17 @@ func Test_Update(t *testing.T) {
 
 }
 
+func Test_Count_All(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+	count, ok := userOrm.Count(nil)
+	assert.True(t, ok, "count not ok")
+	assert.GreaterOrEqual(t, count, 1, "count not working")
+	t.Logf("total count : %d", count)
+}
+
 func Test_Delete(t *testing.T) {
 	setup()
 	defer cleanup()

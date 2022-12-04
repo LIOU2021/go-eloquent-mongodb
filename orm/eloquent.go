@@ -25,6 +25,7 @@ type IEloquent[T interface{}] interface {
 	Insert(data interface{}) (insertedID string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
 	Update(id string, data interface{}) (modifiedCount int, ok bool)
+	Count(filter interface{}) (count int, ok bool)
 }
 
 func NewEloquent[T interface{}](collection string) *Eloquent[T] {
@@ -219,5 +220,38 @@ func (e *Eloquent[T]) Update(id string, data interface{}) (modifiedCount int, ok
 
 	ok = true
 	modifiedCount = int(result.ModifiedCount)
+	return
+}
+
+func (e *Eloquent[T]) Count(filter interface{}) (count int, ok bool) {
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	if filter == nil {
+		estCount, estCountErr := coll.EstimatedDocumentCount(context.TODO())
+		if estCountErr != nil {
+			ok = false
+			logger.LogDebug.Error(e.logTitle, estCountErr, getCurrentFuncInfo())
+			return
+		}
+
+		ok = true
+		count = int(estCount)
+	} else {
+		countD, err := coll.CountDocuments(context.TODO(), filter)
+		if err != nil {
+			ok = false
+			logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+			return
+		}
+
+		ok = true
+		count = int(countD)
+
+	}
+
 	return
 }
