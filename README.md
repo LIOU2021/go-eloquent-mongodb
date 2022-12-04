@@ -8,9 +8,11 @@
 本專案乃個人嘗試做一個簡潔優雅mongodb 的 orm
 
 目標為開發出可重複利用、可擴展、容易維護的ORM
+
+開發的後期，因為model與ORM本身的依賴與責任設計的不良，也時常導致出現一堆model混亂的場景，本ORM將會克服此情境。
+
 # todo
 - eloquent
-    - create InsertMultiple
     - create DeleteMultiple
     - create UpdateMultiple
     - create FindMultiple
@@ -19,19 +21,9 @@
     - create GetUnderage
 # 開始前的作業
 - cp .env.example .env
-# 建立屬於個別collection的struct
-- 範例如下
-```go
-type User struct {
-	ID        string `bson:"_id"`
-	Name      string `bson:"name"`
-	Age       uint16 `bson:"age"`
-	CreatedAt uint64 `bson:"created_at"`
-	UpdatedAt uint64 `bson:"updated_at"`
-}
-```
-
 # usage example
+- 更多範例請直接參考 tests\test
+
 ```go
 package main
 
@@ -45,10 +37,10 @@ import (
 
 type User struct {
 	ID        *string `bson:"_id,omitempty"`
-	Name      string `bson:"name"`
-	Age       uint16 `bson:"age"`
-	CreatedAt uint64 `bson:"created_at"`
-	UpdatedAt uint64 `bson:"updated_at"`
+	Name      string `bson:"name,omitempty"`
+	Age       uint16 `bson:"age,omitempty"`
+	CreatedAt uint64 `bson:"created_at,omitempty"`
+	UpdatedAt uint64 `bson:"updated_at,omitempty"`
 }
 
 func main() {
@@ -60,10 +52,10 @@ func main() {
 	user, ok := userOrm.Find(id)
 
 	if !ok {
-		log.Fatal("fail !")
+		log.Fatal("user id not found !")
 	}
 
-	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *user.ID, user.Name, user.Age, user.CreatedAt, user.UpdatedAt)
+	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *user.ID, *user.Name, *user.Age, *user.CreatedAt, *user.UpdatedAt)
 }
 
 ```

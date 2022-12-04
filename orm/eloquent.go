@@ -25,7 +25,7 @@ type IEloquent[T interface{}] interface {
 	Insert(data *T) (insertedID string, ok bool)
 	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
-	Update(id string, data interface{}) (modifiedCount int, ok bool)
+	Update(id string, data *T) (modifiedCount int, ok bool)
 	Count(filter interface{}) (count int, ok bool)
 }
 
@@ -162,6 +162,11 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, ok bool) {
 	return
 }
 
+/**
+ * @title insert multiple document
+ * @param data []*T{} your model slice
+ * @return InsertedIDs []string ObjectId of insert
+ */
 func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, ok bool) {
 	client := e.Connect()
 
@@ -222,7 +227,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
 	return
 }
 
-func (e *Eloquent[T]) Update(id string, data interface{}) (modifiedCount int, ok bool) {
+func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())

@@ -28,8 +28,9 @@ func (service *UserService) Find(id string) (user *models.User, ok bool) {
 }
 
 func (service *UserService) Insert(user *models.User) (insertId string, ok bool) {
-	user.CreatedAt = uint64(time.Now().Unix())
-	user.UpdatedAt = uint64(time.Now().Unix())
+	currentTime := uint64(time.Now().Unix())
+	user.CreatedAt = &currentTime
+	user.UpdatedAt = &currentTime
 
 	insertId, ok = service.repo.Orm.Insert(user)
 	return
@@ -45,8 +46,9 @@ func (service *UserService) Delete(id string) (deleteCount int, ok bool) {
 	return
 }
 
-func (service *UserService) Update(id string, data *models.UserUpdateData) (updateCount int, ok bool) {
-	data.UpdatedAt = uint64(time.Now().Unix())
+func (service *UserService) Update(id string, data *models.User) (updateCount int, ok bool) {
+	currentTime := uint64(time.Now().Unix())
+	data.UpdatedAt = &currentTime
 	updateCount, ok = service.repo.Orm.Update(id, data)
 	return
 }
