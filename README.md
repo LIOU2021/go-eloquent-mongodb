@@ -44,7 +44,7 @@ import (
 )
 
 type User struct {
-	ID        string `bson:"_id"`
+	ID        *string `bson:"_id"`
 	Name      string `bson:"name"`
 	Age       uint16 `bson:"age"`
 	CreatedAt uint64 `bson:"created_at"`
@@ -63,7 +63,7 @@ func main() {
 		log.Fatal("fail !")
 	}
 
-	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", user.ID, user.Name, user.Age, user.CreatedAt, user.UpdatedAt)
+	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *user.ID, user.Name, user.Age, user.CreatedAt, user.UpdatedAt)
 }
 
 ```
