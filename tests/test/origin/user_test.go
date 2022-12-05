@@ -24,7 +24,7 @@ func cleanup() {
 
 var testId string
 
-func Test_Insert_A_Document(t *testing.T) {
+func Test_User_Insert_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -48,7 +48,7 @@ func Test_Insert_A_Document(t *testing.T) {
 	assert.True(t, insertId != "", "id was null")
 }
 
-func Test_InsertMultiple(t *testing.T) {
+func Test_User_InsertMultiple(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -75,7 +75,7 @@ func Test_InsertMultiple(t *testing.T) {
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
-func Test_Find(t *testing.T) {
+func Test_User_Find(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -87,7 +87,7 @@ func Test_Find(t *testing.T) {
 	logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
 }
 
-func Test_All(t *testing.T) {
+func Test_User_All(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -102,7 +102,7 @@ func Test_All(t *testing.T) {
 	}
 }
 
-func Test_Update_a_document_by_full(t *testing.T) {
+func Test_User_Update_a_document_by_full(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -128,7 +128,7 @@ func Test_Update_a_document_by_full(t *testing.T) {
 	assert.Equal(t, currentTime, *user.UpdatedAt, "update time not working")
 }
 
-func Test_Update_A_Document_By_Part(t *testing.T) {
+func Test_User_Update_A_Document_By_Part(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -152,7 +152,7 @@ func Test_Update_A_Document_By_Part(t *testing.T) {
 	assert.Equal(t, age, *user.Age, "update age not working")
 }
 
-func Test_Count_All(t *testing.T) {
+func Test_User_Count_All(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -163,7 +163,7 @@ func Test_Count_All(t *testing.T) {
 	t.Logf("total count : %d", count)
 }
 
-func Test_Count_Filter(t *testing.T) {
+func Test_User_Count_Filter(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -175,7 +175,7 @@ func Test_Count_Filter(t *testing.T) {
 	t.Logf("filter count : %d", count)
 }
 
-func Test_Delete(t *testing.T) {
+func Test_User_Delete(t *testing.T) {
 	setup()
 	defer cleanup()
 
