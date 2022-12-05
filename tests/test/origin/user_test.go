@@ -225,8 +225,37 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 		assert.Equal(t, uint16(age), *value.Age, "update age not working")
 		assert.Equal(t, currentTime, *value.UpdatedAt, "update time not working")
 	}
-
 }
+
+func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+
+	currentTime := uint64(time.Now().Unix())
+	name := "LaLa-UpdateMultiple_test2_" + strconv.FormatInt(int64(currentTime), 10)
+	data := &models.User{
+		Name: &name,
+	}
+
+	ageCondition := 30
+	filter := bson.M{"age": bson.M{"$gte": ageCondition}}
+	updateCount, ok := userOrm.UpdateMultiple(filter, data)
+	assert.True(t, ok, "updateCount not ok")
+	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
+	t.Log("UpdateMultiple Count : ", updateCount)
+	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"name": name})
+	assert.True(t, ok, "findMultiple not ok")
+
+	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
+	for _, value := range userFindMultiple {
+		assert.True(t, uint64(0) != *value.CreatedAt, "CreatedAt was change")
+		assert.True(t, uint64(0) != *value.UpdatedAt, "UpdatedAt was change")
+		assert.True(t, uint16(0) != *value.Age, "age was change")
+	}
+}
+
 func Test_User_Delete_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
@@ -244,7 +273,7 @@ func Test_User_Delete_Multiple_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	ageCondition := 50
+	ageCondition := 99999
 	deleteCount, ok := userOrm.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
 	assert.True(t, ok, "delete not ok")
 	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")
