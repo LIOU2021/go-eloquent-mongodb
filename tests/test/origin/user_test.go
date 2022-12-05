@@ -139,7 +139,7 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	}
 	updateCount, ok := userOrm.Update(testId, data)
 	assert.True(t, ok, "updateCount not ok")
-	assert.Equal(t, 1, updateCount, "find not ok")
+	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userOk := userOrm.Find(testId)
 	assert.True(t, userOk, "updateCount for find user not ok")
@@ -162,7 +162,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 
 	updateCount, ok := userOrm.Update(testId, data)
 	assert.True(t, ok, "updateCount not ok")
-	assert.Equal(t, 1, updateCount, "find not ok")
+	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userOk := userOrm.Find(testId)
 	assert.True(t, userOk, "updateCount for find user not ok")
@@ -195,6 +195,38 @@ func Test_User_Count_Filter(t *testing.T) {
 	t.Logf("filter count : %d", count)
 }
 
+func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+
+	age := uint16(134)
+	currentTime := uint64(time.Now().Unix())
+	name := "LaLa-UpdateMultiple_" + strconv.FormatInt(int64(currentTime), 10)
+	data := &models.User{
+		Name:      &name,
+		Age:       &age,
+		UpdatedAt: &currentTime,
+	}
+
+	ageCondition := 30
+	filter := bson.M{"age": bson.M{"$lte": ageCondition}}
+	updateCount, ok := userOrm.UpdateMultiple(filter, data)
+	assert.True(t, ok, "updateCount not ok")
+	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
+	t.Log("UpdateMultiple Count : ", updateCount)
+	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"name": name})
+	assert.True(t, ok, "findMultiple not ok")
+
+	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
+	for _, value := range userFindMultiple {
+		assert.True(t, *value.ID != "", "id not find")
+		assert.Equal(t, uint16(age), *value.Age, "update age not working")
+		assert.Equal(t, currentTime, *value.UpdatedAt, "update time not working")
+	}
+
+}
 func Test_User_Delete_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
@@ -212,7 +244,7 @@ func Test_User_Delete_Multiple_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	ageCondition := 30
+	ageCondition := 50
 	deleteCount, ok := userOrm.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
 	assert.True(t, ok, "delete not ok")
 	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")

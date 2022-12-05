@@ -135,13 +135,12 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	}
 	updateCount, ok := userService.Update(testId, data)
 	assert.True(t, ok, "updateCount not ok")
-	assert.Equal(t, 1, updateCount, "find not ok")
+	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userOk := userService.Find(testId)
 	assert.True(t, userOk, "updateCount for find user not ok")
 	assert.Equal(t, name, *user.Name, "update name not working")
 	assert.Equal(t, age, *user.Age, "update age not working")
-
 }
 
 func Test_User_Update_A_Document_By_Part(t *testing.T) {
@@ -158,7 +157,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 
 	updateCount, ok := userService.Update(testId, data)
 	assert.True(t, ok, "updateCount not ok")
-	assert.Equal(t, 1, updateCount, "find not ok")
+	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userOk := userService.Find(testId)
 	assert.True(t, userOk, "updateCount for find user not ok")

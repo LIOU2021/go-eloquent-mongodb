@@ -28,7 +28,7 @@ type IEloquent[T interface{}] interface {
 	Delete(id string) (deleteCount int, ok bool)
 	DeleteMultiple(filter interface{}) (deleteCount int, ok bool)
 	Update(id string, data *T) (modifiedCount int, ok bool)
-	UpdateMultiple(filter interface{}, date interface{}) (modifiedCount int, ok bool)
+	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool)
 	Count(filter interface{}) (count int, ok bool)
 }
 
@@ -320,15 +320,16 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, ok bool) {
 	return
 }
 
-func (e *Eloquent[T]) UpdateMultiple(filter interface{}, date interface{}) (modifiedCount int, ok bool) {
+func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool) {
 
 	client := e.Connect()
 
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
+	update := bson.M{"$set": data}
 
-	result, err := coll.UpdateMany(context.TODO(), filter, date)
+	result, err := coll.UpdateMany(context.TODO(), filter, update)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		ok = false
