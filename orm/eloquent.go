@@ -26,6 +26,7 @@ type IEloquent[T interface{}] interface {
 	Insert(data *T) (insertedID string, ok bool)
 	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
+	DeleteMultiple(filter interface{}) (deleteCount int, ok bool)
 	Update(id string, data *T) (modifiedCount int, ok bool)
 	Count(filter interface{}) (count int, ok bool)
 }

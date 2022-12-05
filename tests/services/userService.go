@@ -51,6 +51,11 @@ func (service *UserService) Delete(id string) (deleteCount int, ok bool) {
 	return
 }
 
+func (service *UserService) DeleteMultiple(filter interface{}) (deleteCount int, ok bool) {
+	deleteCount, ok = service.repo.Orm.DeleteMultiple(filter)
+	return
+}
+
 func (service *UserService) Update(id string, data *models.User) (updateCount int, ok bool) {
 	currentTime := uint64(time.Now().Unix())
 	data.UpdatedAt = &currentTime
