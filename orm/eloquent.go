@@ -75,7 +75,8 @@ func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
 /**
  * @title get all collection from document
  * @param models interface{}
- * @return bool query success or fail
+ * @return models []*T your model slice
+ * @return ok bool query success or fail
  */
 func (e *Eloquent[T]) All() (models []*T, ok bool) {
 	client := e.Connect()
@@ -133,6 +134,39 @@ func (e *Eloquent[T]) Find(id string) (model *T, ok bool) {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		ok = false
 		return
+	}
+	ok = true
+	return
+}
+
+/**
+ * @title find multiple document
+ * @param models interface{}
+ * @return models []*T your model slice
+ * @return ok bool query success or fail
+ */
+func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, ok bool) {
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	cursor, err := coll.Find(context.TODO(), filter)
+
+	if err != nil {
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		ok = false
+		return
+	}
+
+	models = []*T{}
+
+	if err = cursor.All(context.TODO(), &models); err != nil {
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		ok = false
+		return
+
 	}
 	ok = true
 	return
