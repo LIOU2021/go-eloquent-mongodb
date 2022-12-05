@@ -27,6 +27,11 @@ func (service *UserService) Find(id string) (user *models.User, ok bool) {
 	return
 }
 
+func (service *UserService) FindMultiple(filter interface{}) (users []*models.User, ok bool) {
+	users, ok = service.repo.Orm.FindMultiple(filter)
+	return
+}
+
 func (service *UserService) Insert(user *models.User) (insertId string, ok bool) {
 	currentTime := uint64(time.Now().Unix())
 	user.CreatedAt = &currentTime

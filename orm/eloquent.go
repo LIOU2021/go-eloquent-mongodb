@@ -22,6 +22,7 @@ type Eloquent[t interface{}] struct {
 type IEloquent[T interface{}] interface {
 	All() (models []*T, ok bool)
 	Find(id string) (model *T, ok bool)
+	FindMultiple(filter interface{}) (models []*T, ok bool)
 	Insert(data *T) (insertedID string, ok bool)
 	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
