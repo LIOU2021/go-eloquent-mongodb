@@ -15,14 +15,13 @@
 - eloquent
     - create DeleteMultiple
     - create UpdateMultiple
-    - create FindMultiple
     - create Paginate
 - repo
     - create GetUnderage
 # 開始前的作業
 - cp .env.example .env
 # usage example
-- 更多範例請直接參考 tests\test
+- more sample see tests\test
 
 ```go
 package main

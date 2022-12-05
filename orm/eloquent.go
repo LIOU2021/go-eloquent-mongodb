@@ -254,11 +254,37 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
 	result, err := coll.DeleteOne(context.TODO(), filter)
 	if err != nil {
 		ok = false
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
 		return
 	}
 
 	ok = true
 	deleteCount = int(result.DeletedCount)
+	return
+}
+
+/**
+ * @title delete Multiple document
+ * @param filter interface{} ex:bson.M{}, struct, bson.D{}
+ * @return deleteCount int delete document count
+ * @return ok bool query success or fail
+ */
+func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, ok bool) {
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	results, err := coll.DeleteMany(context.TODO(), filter)
+	if err != nil {
+		ok = false
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		return
+	}
+
+	ok = true
+	deleteCount = int(results.DeletedCount)
 	return
 }
 
