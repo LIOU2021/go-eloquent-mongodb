@@ -75,7 +75,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
-func Test_User_Find(t *testing.T) {
+func Test_User_Find_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -85,6 +85,23 @@ func Test_User_Find(t *testing.T) {
 	assert.True(t, ok, "find not ok")
 	assert.True(t, *userFind.ID != "", "id not find")
 	logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
+}
+
+func Test_User_Find__Multiple_Document(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+
+	ageCondition := 0
+
+	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	assert.True(t, ok, "findMultiple not ok")
+	for _, value := range userFindMultiple {
+		assert.True(t, *value.ID != "", "id not find")
+		assert.LessOrEqual(t, *value.Age, uint16(ageCondition), "not less than 30")
+		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+	}
 }
 
 func Test_User_All(t *testing.T) {

@@ -73,7 +73,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
-func Test_User_Find(t *testing.T) {
+func Test_User_Find_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 
