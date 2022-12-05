@@ -14,6 +14,24 @@
 # todo
 - eloquent
     - create Paginate
+	```json
+	{
+		"total": 50,
+		"per_page": 15,
+		"current_page": 1,
+		"last_page": 4,
+		"from": 1,
+		"to": 15,
+		"data":[
+				{
+					// Record...
+				},
+				{
+					// Record...
+				}
+		]
+	}
+	```
 - repo
     - create GetUnderage
 # 開始前的作業
