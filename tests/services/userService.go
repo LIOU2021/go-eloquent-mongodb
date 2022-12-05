@@ -63,6 +63,13 @@ func (service *UserService) Update(id string, data *models.User) (updateCount in
 	return
 }
 
+func (service *UserService) UpdateMultiple(filter interface{}, data *models.User) (updateCount int, ok bool) {
+	currentTime := uint64(time.Now().Unix())
+	data.UpdatedAt = &currentTime
+	updateCount, ok = service.repo.Orm.UpdateMultiple(filter, data)
+	return
+}
+
 func (e *UserService) Count(filter interface{}) (count int, ok bool) {
 	count, ok = e.repo.Orm.Count(filter)
 	return
