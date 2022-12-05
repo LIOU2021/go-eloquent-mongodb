@@ -120,7 +120,7 @@ func Test_User_All(t *testing.T) {
 	}
 }
 
-func Test_User_Update_a_document_by_full(t *testing.T) {
+func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -199,5 +199,5 @@ func Test_User_Delete(t *testing.T) {
 
 	deleteCount, ok := userService.Delete(testId)
 	assert.True(t, ok, "delete not ok")
-	assert.Equal(t, 1, deleteCount, "find not ok")
+	assert.Equal(t, 1, deleteCount, "delete not working")
 }

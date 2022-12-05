@@ -122,7 +122,7 @@ func Test_User_All(t *testing.T) {
 	}
 }
 
-func Test_User_Update_a_document_by_full(t *testing.T) {
+func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -195,7 +195,7 @@ func Test_User_Count_Filter(t *testing.T) {
 	t.Logf("filter count : %d", count)
 }
 
-func Test_User_Delete(t *testing.T) {
+func Test_User_Delete_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 
@@ -203,5 +203,18 @@ func Test_User_Delete(t *testing.T) {
 
 	deleteCount, ok := userOrm.Delete(testId)
 	assert.True(t, ok, "delete not ok")
-	assert.Equal(t, 1, deleteCount, "find not ok")
+	assert.Equal(t, 1, deleteCount, "delete not working")
+}
+
+func Test_User_Delete_Multiple_Document(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+
+	ageCondition := 30
+	deleteCount, ok := userOrm.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	assert.True(t, ok, "delete not ok")
+	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")
+	t.Logf("DeleteMultiple : %d", deleteCount)
 }

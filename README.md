@@ -13,7 +13,6 @@
 
 # todo
 - eloquent
-    - create DeleteMultiple
     - create UpdateMultiple
     - create Paginate
 - repo
