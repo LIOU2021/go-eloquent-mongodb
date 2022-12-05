@@ -78,16 +78,19 @@ func Test_User_InsertMultiple(t *testing.T) {
 func Test_User_Find_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
-
 	userOrm := orm.NewEloquent[models.User]("users")
 
 	userFind, ok := userOrm.Find(testId)
+	assert.NotNil(t, userFind, "userFind was nil")
 	assert.True(t, ok, "find not ok")
-	assert.True(t, *userFind.ID != "", "id not find")
-	logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
+	if userFind != nil {
+		assert.True(t, *userFind.ID != "", "id not find")
+		logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
+	}
+
 }
 
-func Test_User_Find__Multiple_Document(t *testing.T) {
+func Test_User_Find_Multiple_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 

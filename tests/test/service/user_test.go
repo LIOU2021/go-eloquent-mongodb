@@ -80,12 +80,15 @@ func Test_User_Find_A_Document(t *testing.T) {
 	userService := services.NewUserService()
 
 	userFind, ok := userService.Find(testId)
+	assert.NotNil(t, userFind, "userFind was nil")
 	assert.True(t, ok, "find not ok")
-	assert.True(t, *userFind.ID != "", "id not find")
-	logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
+	if userFind != nil {
+		assert.True(t, *userFind.ID != "", "id not find")
+		logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
+	}
 }
 
-func Test_User_Find__Multiple_Document(t *testing.T) {
+func Test_User_Find_Multiple_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 
