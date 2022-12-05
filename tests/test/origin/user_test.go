@@ -93,7 +93,7 @@ func Test_User_Find__Multiple_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	ageCondition := 0
+	ageCondition := 30
 
 	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
 	assert.True(t, ok, "findMultiple not ok")
