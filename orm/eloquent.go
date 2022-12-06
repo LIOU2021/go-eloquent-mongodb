@@ -30,7 +30,7 @@ type IEloquent[T any] interface {
 	Update(id string, data *T) (modifiedCount int, err error)
 	UpdateMultiple(filter any, data *T) (modifiedCount int, err error)
 	Count(filter any) (count int, err error)
-	Paginate(limit int, page int) (pagination *pagination[T], err error)
+	Paginate(limit int, page int, filter any) (paginated *pagination[T], err error)
 }
 
 func NewEloquent[T any](collection string) *Eloquent[T] {
@@ -88,19 +88,19 @@ func (e *Eloquent[T]) All() (models []*T, err error) {
 
 	coll := e.GetCollection(client)
 
-	cursor, err := coll.Find(context.TODO(), bson.M{})
+	cursor, errF := coll.Find(context.TODO(), bson.M{})
 
-	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	if errF != nil {
+		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
+		err = e.errMsg(errF)
 		return
 	}
 
 	models = []*T{}
 
-	if err = cursor.All(context.TODO(), &models); err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	if errA := cursor.All(context.TODO(), &models); errA != nil {
+		logger.LogDebug.Error(e.logTitle, errA, getCurrentFuncInfo(1))
+		err = e.errMsg(errA)
 		return
 
 	}
@@ -114,10 +114,10 @@ func (e *Eloquent[T]) All() (models []*T, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Find(id string) (model *T, err error) {
-	idH, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
+	idH, errP := primitive.ObjectIDFromHex(id)
+	if errP != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+		err = e.errMsg(errP)
 		return
 	}
 
@@ -127,14 +127,14 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 
 	coll := e.GetCollection(client)
 	model = new(T)
-	err = coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
+	errF := coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
 
-	if err == mongo.ErrNoDocuments {
-		err = e.errMsg(err)
+	if errF == mongo.ErrNoDocuments {
+		err = e.errMsg(errF)
 		return
-	} else if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	} else if errF != nil {
+		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
+		err = e.errMsg(errF)
 		return
 	}
 
@@ -154,19 +154,19 @@ func (e *Eloquent[T]) FindMultiple(filter any) (models []*T, err error) {
 
 	coll := e.GetCollection(client)
 
-	cursor, err := coll.Find(context.TODO(), filter)
+	cursor, errF := coll.Find(context.TODO(), filter)
 
-	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	if errF != nil {
+		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
+		err = e.errMsg(errF)
 		return
 	}
 
 	models = []*T{}
 
-	if err = cursor.All(context.TODO(), &models); err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	if errA := cursor.All(context.TODO(), &models); errA != nil {
+		logger.LogDebug.Error(e.logTitle, errA, getCurrentFuncInfo(1))
+		err = e.errMsg(errA)
 		return
 	}
 
@@ -186,10 +186,10 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
 
 	coll := e.GetCollection(client)
 
-	result, err := coll.InsertOne(context.TODO(), data)
-	if err != nil {
-		err = e.errMsg(err)
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+	result, errI := coll.InsertOne(context.TODO(), data)
+	if errI != nil {
+		err = e.errMsg(errI)
+		logger.LogDebug.Error(e.logTitle, errI, getCurrentFuncInfo(1))
 		return
 	}
 	insertedID = result.InsertedID.(primitive.ObjectID).Hex()
@@ -213,10 +213,10 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error
 		slice = append(slice, value)
 	}
 
-	result, err := coll.InsertMany(context.TODO(), slice)
-	if err != nil {
-		err = e.errMsg(err)
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+	result, errI := coll.InsertMany(context.TODO(), slice)
+	if errI != nil {
+		err = e.errMsg(errI)
+		logger.LogDebug.Error(e.logTitle, errI, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -236,10 +236,10 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
-	idH, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
+	idH, errP := primitive.ObjectIDFromHex(id)
+	if errP != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+		err = e.errMsg(errP)
 		return
 	}
 
@@ -251,10 +251,10 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
 
 	filter := bson.M{"_id": idH}
 
-	result, err := coll.DeleteOne(context.TODO(), filter)
-	if err != nil {
-		err = e.errMsg(err)
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+	result, errD := coll.DeleteOne(context.TODO(), filter)
+	if errD != nil {
+		err = e.errMsg(errD)
+		logger.LogDebug.Error(e.logTitle, errD, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -275,10 +275,10 @@ func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
 
 	coll := e.GetCollection(client)
 
-	results, err := coll.DeleteMany(context.TODO(), filter)
-	if err != nil {
-		err = e.errMsg(err)
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+	results, errD := coll.DeleteMany(context.TODO(), filter)
+	if errD != nil {
+		err = e.errMsg(errD)
+		logger.LogDebug.Error(e.logTitle, errD, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -293,10 +293,10 @@ func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) {
-	idH, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
+	idH, errP := primitive.ObjectIDFromHex(id)
+	if errP != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+		err = e.errMsg(errP)
 		return
 	}
 
@@ -309,11 +309,11 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
 	filter := bson.M{"_id": idH}
 	update := bson.M{"$set": data}
 
-	result, err := coll.UpdateOne(context.TODO(), filter, update)
+	result, errU := coll.UpdateOne(context.TODO(), filter, update)
 
-	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	if errU != nil {
+		logger.LogDebug.Error(e.logTitle, errU, getCurrentFuncInfo(1))
+		err = e.errMsg(errU)
 		return
 	}
 
@@ -336,10 +336,10 @@ func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, er
 	coll := e.GetCollection(client)
 	update := bson.M{"$set": data}
 
-	result, err := coll.UpdateMany(context.TODO(), filter, update)
-	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		err = e.errMsg(err)
+	result, errU := coll.UpdateMany(context.TODO(), filter, update)
+	if errU != nil {
+		logger.LogDebug.Error(e.logTitle, errU, getCurrentFuncInfo(1))
+		err = e.errMsg(errU)
 		return
 	}
 
@@ -363,7 +363,7 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
 	if filter == nil {
 		estCount, estCountErr := coll.EstimatedDocumentCount(context.TODO())
 		if estCountErr != nil {
-			err = e.errMsg(err)
+			err = e.errMsg(estCountErr)
 			logger.LogDebug.Error(e.logTitle, estCountErr, getCurrentFuncInfo(1))
 			return
 		}
@@ -371,9 +371,9 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
 		count = int(estCount)
 	} else {
 		countD, errD := coll.CountDocuments(context.TODO(), filter)
-		if err != nil {
+		if errD != nil {
 			err = e.errMsg(errD)
-			logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+			logger.LogDebug.Error(e.logTitle, errD, getCurrentFuncInfo(1))
 			return
 		}
 
@@ -386,19 +386,77 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
 
 /**
  * @title create pagination for your model data
- * @param limit int how many data display in each page
- * @param page int choose page for pagination
+ * @param limit int how many data display in each page. default=10
+ * @param page int choose page for pagination. default=1
+ * @param filter any you can use struct, bson,etc .., or nil
  * @return pagination *pagination[T]
  */
-func (e *Eloquent[T]) Paginate(limit int, page int) (paginated *pagination[T], err error) {
-	total, totalErr := e.Count(nil)
+func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *pagination[T], err error) {
+	client := e.Connect()
+
+	defer e.Close(client)
+
+	coll := e.GetCollection(client)
+
+	total, totalErr := e.Count(filter)
 	if totalErr != nil {
 		err = e.errMsg(totalErr)
 		logger.LogDebug.Error(e.logTitle, totalErr, getCurrentFuncInfo(1))
 	}
 
-	paginated = &pagination[T]{
-		Total: uint(total),
+	if limit < 1 {
+		limit = 10
+	}
+
+	if page < 1 {
+		page = 1
+	}
+
+	var to int
+	var from int
+	data := []*T{}
+	lastPage := total / limit
+
+	if total%limit == 0 {
+		lastPage++
+	}
+
+	if total > 0 {
+		from = limit*(page-1) + 1
+	} else {
+		from = 0
+	}
+
+	if page == lastPage {
+		to = total
+	} else {
+		to = limit * page
+	}
+
+	defer func() {
+		paginated = newPagination(total, limit, page, lastPage, from, to, data)
+	}()
+
+	if total == 0 {
+		return
+	}
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.M{"created_at": -1})
+	findOptions.SetLimit(int64(limit))
+	findOptions.SetSkip(int64(limit * (page - 1)))
+
+	cursor, errF := coll.Find(context.TODO(), filter, findOptions)
+	if errF != nil {
+		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
+		err = e.errMsg(errF)
+		return
+	}
+
+	if errA := cursor.All(context.TODO(), &data); errA != nil {
+		logger.LogDebug.Error(e.logTitle, errA, getCurrentFuncInfo(1))
+		err = e.errMsg(errA)
+		return
 	}
 
 	return
