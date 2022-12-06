@@ -37,12 +37,12 @@ func Test_User_Insert_A_Document(t *testing.T) {
 		Age:  &age,
 	}
 
-	insertId, ok := userService.Insert(data)
+	insertId, err := userService.Insert(data)
 	logger.LogDebug.Info("insertId : ", insertId)
 
 	testId = insertId
 
-	assert.True(t, ok, "insert not ok")
+	assert.Nil(t, err, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
 }
 

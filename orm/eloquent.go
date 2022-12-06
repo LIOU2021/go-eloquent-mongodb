@@ -23,7 +23,7 @@ type IEloquent[T interface{}] interface {
 	All() (models []*T, err error)
 	Find(id string) (model *T, err error)
 	FindMultiple(filter interface{}) (models []*T, err error)
-	Insert(data *T) (insertedID string, ok bool)
+	Insert(data *T) (insertedID string, err error)
 	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
 	DeleteMultiple(filter interface{}) (deleteCount int, ok bool)
@@ -174,10 +174,11 @@ func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, err error) 
 
 /**
  * @title insert a document
- * @param data interface{} your model struct
- * @return insertedID *primitive.ObjectID ObjectId of mongodb
+ * @param data *T your model struct
+ * @return insertedID string _id of mongodb
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) Insert(data *T) (insertedID string, ok bool) {
+func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -186,12 +187,10 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, ok bool) {
 
 	result, err := coll.InsertOne(context.TODO(), data)
 	if err != nil {
-		ok = false
+		err = e.errMsg(err)
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
-
-	ok = true
 	insertedID = result.InsertedID.(primitive.ObjectID).Hex()
 	return
 }

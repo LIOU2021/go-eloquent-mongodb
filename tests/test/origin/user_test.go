@@ -39,12 +39,12 @@ func Test_User_Insert_A_Document(t *testing.T) {
 		CreatedAt: &currentTime,
 		UpdatedAt: &currentTime,
 	}
-	insertId, ok := userOrm.Insert(data)
+	insertId, err := userOrm.Insert(data)
 	logger.LogDebug.Info("insertId : ", insertId)
 
 	testId = insertId
 
-	assert.True(t, ok, "insert not ok")
+	assert.Nil(t, err, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
 }
 

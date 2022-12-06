@@ -32,12 +32,12 @@ func (service *UserService) FindMultiple(filter interface{}) (users []*models.Us
 	return
 }
 
-func (service *UserService) Insert(user *models.User) (insertId string, ok bool) {
+func (service *UserService) Insert(user *models.User) (insertId string, err error) {
 	currentTime := uint64(time.Now().Unix())
 	user.CreatedAt = &currentTime
 	user.UpdatedAt = &currentTime
 
-	insertId, ok = service.repo.Orm.Insert(user)
+	insertId, err = service.repo.Orm.Insert(user)
 	return
 }
 
