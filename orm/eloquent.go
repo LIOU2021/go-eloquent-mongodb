@@ -25,7 +25,7 @@ type IEloquent[T interface{}] interface {
 	FindMultiple(filter interface{}) (models []*T, err error)
 	Insert(data *T) (insertedID string, err error)
 	InsertMultiple(data []*T) (InsertedIDs []string, err error)
-	Delete(id string) (deleteCount int, ok bool)
+	Delete(id string) (deleteCount int, err error)
 	DeleteMultiple(filter interface{}) (deleteCount int, ok bool)
 	Update(id string, data *T) (modifiedCount int, ok bool)
 	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool)
@@ -232,13 +232,13 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error
  * @title delete a document
  * @param id string _id of document
  * @return deleteCount int delete document count
- * @return ok bool query success or fail
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
+func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 	}
 
@@ -252,12 +252,11 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
 
 	result, err := coll.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		ok = false
+		err = e.errMsg(err)
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
 
-	ok = true
 	deleteCount = int(result.DeletedCount)
 	return
 }

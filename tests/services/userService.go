@@ -46,8 +46,8 @@ func (service *UserService) InsertMultiple(user []*models.User) (InsertedIDs []s
 	return
 }
 
-func (service *UserService) Delete(id string) (deleteCount int, ok bool) {
-	deleteCount, ok = service.repo.Orm.Delete(id)
+func (service *UserService) Delete(id string) (deleteCount int, err error) {
+	deleteCount, err = service.repo.Orm.Delete(id)
 	return
 }
 

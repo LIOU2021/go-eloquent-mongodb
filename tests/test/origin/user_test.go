@@ -262,8 +262,8 @@ func Test_User_Delete_A_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	deleteCount, ok := userOrm.Delete(testId)
-	assert.True(t, ok, "delete not ok")
+	deleteCount, err := userOrm.Delete(testId)
+	assert.Nil(t, err, "delete not ok")
 	assert.Equal(t, 1, deleteCount, "delete not working")
 }
 

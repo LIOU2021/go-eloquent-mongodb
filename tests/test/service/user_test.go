@@ -257,8 +257,8 @@ func Test_User_Delete_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	deleteCount, ok := userService.Delete(testId)
-	assert.True(t, ok, "delete not ok")
+	deleteCount, err := userService.Delete(testId)
+	assert.Nil(t, err, "delete not ok")
 	assert.Equal(t, 1, deleteCount, "delete not working")
 }
 
