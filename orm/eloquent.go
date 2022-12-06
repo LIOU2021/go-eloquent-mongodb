@@ -20,7 +20,7 @@ type Eloquent[t interface{}] struct {
 }
 
 type IEloquent[T interface{}] interface {
-	All() (models []*T, ok bool)
+	All() (models []*T, err error)
 	Find(id string) (model *T, err error)
 	FindMultiple(filter interface{}) (models []*T, ok bool)
 	Insert(data *T) (insertedID string, ok bool)
@@ -76,12 +76,11 @@ func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
 }
 
 /**
- * @title get all collection from document
- * @param models interface{}
+ * @title get all document from collection
  * @return models []*T your model slice
- * @return ok bool query success or fail
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) All() (models []*T, ok bool) {
+func (e *Eloquent[T]) All() (models []*T, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -92,7 +91,7 @@ func (e *Eloquent[T]) All() (models []*T, ok bool) {
 
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 	}
 
@@ -100,11 +99,10 @@ func (e *Eloquent[T]) All() (models []*T, ok bool) {
 
 	if err = cursor.All(context.TODO(), &models); err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 
 	}
-	ok = true
 	return
 }
 

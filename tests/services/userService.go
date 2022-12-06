@@ -17,8 +17,8 @@ func NewUserService() *UserService {
 	}
 }
 
-func (service *UserService) All() (userAll []*models.User, ok bool) {
-	userAll, ok = service.repo.Orm.All()
+func (service *UserService) All() (userAll []*models.User, err error) {
+	userAll, err = service.repo.Orm.All()
 	return
 }
 

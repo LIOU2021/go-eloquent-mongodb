@@ -113,8 +113,8 @@ func Test_User_All(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	userAll, ok := userOrm.All()
-	assert.True(t, ok, "all not ok")
+	userAll, err := userOrm.All()
+	assert.Nil(t, err, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
 		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, *v.ID, *v.Name, *v.Age, *v.CreatedAt, *v.UpdatedAt)
