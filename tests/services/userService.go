@@ -41,8 +41,8 @@ func (service *UserService) Insert(user *models.User) (insertId string, err erro
 	return
 }
 
-func (service *UserService) InsertMultiple(user []*models.User) (InsertedIDs []string, ok bool) {
-	InsertedIDs, ok = service.repo.Orm.InsertMultiple(user)
+func (service *UserService) InsertMultiple(user []*models.User) (InsertedIDs []string, err error) {
+	InsertedIDs, err = service.repo.Orm.InsertMultiple(user)
 	return
 }
 

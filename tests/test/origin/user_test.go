@@ -68,10 +68,10 @@ func Test_User_InsertMultiple(t *testing.T) {
 		})
 	}
 
-	InsertedIDs, ok := userOrm.InsertMultiple(data)
+	InsertedIDs, err := userOrm.InsertMultiple(data)
 	logger.LogDebug.Info("InsertedIDs  : ", InsertedIDs)
 
-	assert.True(t, ok, "insertMultiple not ok")
+	assert.Nil(t, err, "insertMultiple not ok")
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 

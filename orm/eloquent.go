@@ -24,7 +24,7 @@ type IEloquent[T interface{}] interface {
 	Find(id string) (model *T, err error)
 	FindMultiple(filter interface{}) (models []*T, err error)
 	Insert(data *T) (insertedID string, err error)
-	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
+	InsertMultiple(data []*T) (InsertedIDs []string, err error)
 	Delete(id string) (deleteCount int, ok bool)
 	DeleteMultiple(filter interface{}) (deleteCount int, ok bool)
 	Update(id string, data *T) (modifiedCount int, ok bool)
@@ -198,9 +198,10 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
 /**
  * @title insert multiple document
  * @param data []*T{} your model slice
- * @return InsertedIDs []string ObjectId of insert
+ * @return InsertedIDs []string _id of mongodb
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, ok bool) {
+func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -210,20 +211,20 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, ok bool) 
 	for _, value := range data {
 		slice = append(slice, value)
 	}
-	InsertedIDs = []string{}
 
 	result, err := coll.InsertMany(context.TODO(), slice)
 	if err != nil {
-		ok = false
+		err = e.errMsg(err)
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
+
+	InsertedIDs = []string{}
 
 	for _, id := range result.InsertedIDs {
 		idString := id.(primitive.ObjectID).Hex()
 		InsertedIDs = append(InsertedIDs, idString)
 	}
-	ok = true
 	return
 }
 
