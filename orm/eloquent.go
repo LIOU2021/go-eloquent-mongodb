@@ -27,7 +27,7 @@ type IEloquent[T interface{}] interface {
 	InsertMultiple(data []*T) (InsertedIDs []string, err error)
 	Delete(id string) (deleteCount int, err error)
 	DeleteMultiple(filter interface{}) (deleteCount int, err error)
-	Update(id string, data *T) (modifiedCount int, ok bool)
+	Update(id string, data *T) (modifiedCount int, err error)
 	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool)
 	Count(filter interface{}) (count int, ok bool)
 }
@@ -285,11 +285,17 @@ func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, err e
 	return
 }
 
-func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, ok bool) {
+/**
+ * @title update a document
+ * @param id string _id of mongodb
+ * @return modifiedCount int modified document count
+ * @return err error fail message from query
+ */
+func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 	}
 
@@ -306,11 +312,10 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, ok bool) {
 
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 	}
 
-	ok = true
 	modifiedCount = int(result.ModifiedCount)
 	return
 }

@@ -137,8 +137,8 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 		Age:       &age,
 		UpdatedAt: &currentTime,
 	}
-	updateCount, ok := userOrm.Update(testId, data)
-	assert.True(t, ok, "updateCount not ok")
+	updateCount, err := userOrm.Update(testId, data)
+	assert.NoError(t, err, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userErr := userOrm.Find(testId)
@@ -160,8 +160,8 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 		Age: &age,
 	}
 
-	updateCount, ok := userOrm.Update(testId, data)
-	assert.True(t, ok, "updateCount not ok")
+	updateCount, err := userOrm.Update(testId, data)
+	assert.NoError(t, err, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userErr := userOrm.Find(testId)

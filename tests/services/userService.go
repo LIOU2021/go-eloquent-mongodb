@@ -56,10 +56,10 @@ func (service *UserService) DeleteMultiple(filter interface{}) (deleteCount int,
 	return
 }
 
-func (service *UserService) Update(id string, data *models.User) (updateCount int, ok bool) {
+func (service *UserService) Update(id string, data *models.User) (updateCount int, err error) {
 	currentTime := uint64(time.Now().Unix())
 	data.UpdatedAt = &currentTime
-	updateCount, ok = service.repo.Orm.Update(id, data)
+	updateCount, err = service.repo.Orm.Update(id, data)
 	return
 }
 
