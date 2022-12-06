@@ -388,8 +388,9 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
  * @title create pagination for your model data
  * @param limit int how many data display in each page. default=10
  * @param page int choose page for pagination. default=1
- * @param filter any you can use struct, bson,etc .., or nil
+ * @param filter any you can use struct, bson,etc ... . but reject pass nil to filter
  * @return pagination *pagination[T]
+ * @return err error fail message from query
  */
 func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *pagination[T], err error) {
 	client := e.Connect()
@@ -417,7 +418,7 @@ func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *pagi
 	data := []*T{}
 	lastPage := total / limit
 
-	if total%limit == 0 {
+	if total%limit >= 1 {
 		lastPage++
 	}
 

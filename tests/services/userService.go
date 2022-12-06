@@ -33,7 +33,7 @@ func (service *UserService) FindMultiple(filter any) (users []*models.User, err 
 }
 
 func (service *UserService) Insert(user *models.User) (insertId string, err error) {
-	currentTime := uint64(time.Now().Unix())
+	currentTime := time.Now().Unix()
 	user.CreatedAt = &currentTime
 	user.UpdatedAt = &currentTime
 
@@ -57,14 +57,14 @@ func (service *UserService) DeleteMultiple(filter any) (deleteCount int, err err
 }
 
 func (service *UserService) Update(id string, data *models.User) (updateCount int, err error) {
-	currentTime := uint64(time.Now().Unix())
+	currentTime := time.Now().Unix()
 	data.UpdatedAt = &currentTime
 	updateCount, err = service.repo.Orm.Update(id, data)
 	return
 }
 
 func (service *UserService) UpdateMultiple(filter any, data *models.User) (updateCount int, err error) {
-	currentTime := uint64(time.Now().Unix())
+	currentTime := time.Now().Unix()
 	data.UpdatedAt = &currentTime
 	updateCount, err = service.repo.Orm.UpdateMultiple(filter, data)
 	return

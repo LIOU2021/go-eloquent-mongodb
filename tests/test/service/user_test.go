@@ -31,7 +31,7 @@ func Test_User_Insert_A_Document(t *testing.T) {
 	userService := services.NewUserService()
 
 	name := "c8"
-	age := uint16(110)
+	age := 110
 	data := &models.User{
 		Name: &name,
 		Age:  &age,
@@ -53,10 +53,11 @@ func Test_User_InsertMultiple(t *testing.T) {
 	userService := services.NewUserService()
 
 	var data []*models.User
-	currentTime := uint64(time.Now().Unix())
+
 	count := 10
 	for i := 0; i < count; i++ {
-		age := uint16(1 + i*10)
+		currentTime := time.Now().Unix()
+		age := 1 + i*10
 		name := "serviceT_" + strconv.FormatInt(int64(i), 10)
 		data = append(data, &models.User{
 			Name:      &name,
@@ -64,6 +65,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 			CreatedAt: &currentTime,
 			UpdatedAt: &currentTime,
 		})
+		currentTime = currentTime + int64(i)
 	}
 
 	InsertedIDs, err := userService.InsertMultiple(data)
@@ -100,7 +102,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	assert.NoError(t, err, "findMultiple not ok")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
-		assert.LessOrEqual(t, *value.Age, uint16(ageCondition), "not less than 30")
+		assert.LessOrEqual(t, *value.Age, ageCondition, "not less than 30")
 		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
 	}
 }
@@ -127,7 +129,7 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	userService := services.NewUserService()
 
 	name := "LaLa"
-	age := uint16(30)
+	age := 30
 
 	data := &models.User{
 		Name: &name,
@@ -149,7 +151,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	age := uint16(time.Now().Second())
+	age := time.Now().Second()
 
 	data := &models.User{
 		Age: &age,
@@ -196,8 +198,8 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	age := uint16(134)
-	currentTime := uint64(time.Now().Unix())
+	age := 134
+	currentTime := time.Now().Unix()
 	name := "LaLa-UpdateMultiple_" + strconv.FormatInt(int64(currentTime), 10)
 	data := &models.User{
 		Name:      &name,
@@ -217,7 +219,7 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
-		assert.Equal(t, uint16(age), *value.Age, "update age not working")
+		assert.Equal(t, age, *value.Age, "update age not working")
 		assert.Equal(t, currentTime, *value.UpdatedAt, "update time not working")
 	}
 }
@@ -228,7 +230,7 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	currentTime := uint64(time.Now().Unix())
+	currentTime := time.Now().Unix()
 	name := "LaLa-UpdateMultiple_test2_" + strconv.FormatInt(int64(currentTime), 10)
 	data := &models.User{
 		Name: &name,
@@ -245,9 +247,9 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
-		assert.True(t, uint64(0) != *value.CreatedAt, "CreatedAt was change")
-		assert.True(t, uint64(0) != *value.UpdatedAt, "UpdatedAt was change")
-		assert.True(t, uint16(0) != *value.Age, "age was change")
+		assert.True(t, 0 != *value.CreatedAt, "CreatedAt was change")
+		assert.True(t, 0 != *value.UpdatedAt, "UpdatedAt was change")
+		assert.True(t, 0 != *value.Age, "age was change")
 	}
 }
 

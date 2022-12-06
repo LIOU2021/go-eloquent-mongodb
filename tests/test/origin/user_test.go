@@ -1,6 +1,7 @@
 package origin
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -29,10 +30,10 @@ func Test_User_Insert_A_Document(t *testing.T) {
 	defer cleanup()
 
 	userOrm := orm.NewEloquent[models.User]("users")
-	currentTime := uint64(time.Now().Unix())
+	currentTime := time.Now().Unix()
 
 	name := "c6"
-	age := uint16(54)
+	age := 54
 	data := &models.User{
 		Name:      &name,
 		Age:       &age,
@@ -55,17 +56,20 @@ func Test_User_InsertMultiple(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 
 	var data []*models.User
-	currentTime := uint64(time.Now().Unix())
+
 	count := 10
+
 	for i := 0; i < count; i++ {
+		currentTime := time.Now().Unix()
 		name := "c8_" + strconv.FormatInt(int64(i), 10)
-		age := uint16(1 + i*10)
+		age := 1 + i*10
 		data = append(data, &models.User{
 			Name:      &name,
 			Age:       &age,
 			CreatedAt: &currentTime,
 			UpdatedAt: &currentTime,
 		})
+		currentTime = currentTime + int64(i)
 	}
 
 	InsertedIDs, err := userOrm.InsertMultiple(data)
@@ -79,7 +83,6 @@ func Test_User_Find_A_Document(t *testing.T) {
 	setup()
 	defer cleanup()
 	userOrm := orm.NewEloquent[models.User]("users")
-
 	userFind, err := userOrm.Find(testId)
 	assert.NotNil(t, userFind, "userFind was nil")
 	assert.NoError(t, err, "find not ok")
@@ -87,7 +90,6 @@ func Test_User_Find_A_Document(t *testing.T) {
 		assert.True(t, *userFind.ID != "", "id not find")
 		logger.LogDebug.Infof("[user@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
 	}
-
 }
 
 func Test_User_Find_Multiple_Document(t *testing.T) {
@@ -102,7 +104,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	assert.NoError(t, err, "findMultiple not ok")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
-		assert.LessOrEqual(t, *value.Age, uint16(ageCondition), "not less than 30")
+		assert.LessOrEqual(t, *value.Age, ageCondition, fmt.Sprintf("not less than %d", ageCondition))
 		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
 	}
 }
@@ -129,8 +131,8 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 
 	name := "LaLa"
-	age := uint16(30)
-	currentTime := uint64(time.Now().Unix())
+	age := 30
+	currentTime := time.Now().Unix()
 
 	data := &models.User{
 		Name:      &name,
@@ -154,7 +156,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	age := uint16(time.Now().Second())
+	age := time.Now().Second()
 
 	data := &models.User{
 		Age: &age,
@@ -195,14 +197,41 @@ func Test_User_Count_Filter(t *testing.T) {
 	t.Logf("filter count : %d", count)
 }
 
+func Test_User_Paginate_Full(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+	currentPage := 2
+	limit := 3
+	pagination, err := userOrm.Paginate(limit, currentPage, bson.M{})
+	assert.NoError(t, err, "paginate not ok")
+	t.Logf("pagination response : %+v", pagination)
+	assert.Equal(t, 4, pagination.LastPage, "lastPage err")
+	assert.Equal(t, 11, pagination.Total, "total err")
+	assert.Equal(t, currentPage, pagination.CurrentPage, "currentPage err")
+	assert.Equal(t, limit, pagination.PerPage, "PerPage err")
+	assert.Equal(t, limit*(currentPage-1)+1, pagination.From, "From err")
+	assert.Equal(t, limit*currentPage, pagination.To, "To err")
+
+	var preCreatedAt int64
+	for index, value := range pagination.Data {
+		if index > 0 {
+			assert.Less(t, *value.CreatedAt, preCreatedAt, "order by created_at desc fail")
+		}
+		preCreatedAt = *value.CreatedAt
+		t.Logf("pagination data - id : %s, name : %s. age : %d, created_at : %d, updated_at : %d", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+	}
+}
+
 func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	setup()
 	defer cleanup()
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	age := uint16(134)
-	currentTime := uint64(time.Now().Unix())
+	age := 134
+	currentTime := time.Now().Unix()
 	name := "LaLa-UpdateMultiple_" + strconv.FormatInt(int64(currentTime), 10)
 	data := &models.User{
 		Name:      &name,
@@ -222,7 +251,7 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
-		assert.Equal(t, uint16(age), *value.Age, "update age not working")
+		assert.Equal(t, age, *value.Age, "update age not working")
 		assert.Equal(t, currentTime, *value.UpdatedAt, "update time not working")
 	}
 }
@@ -233,7 +262,7 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	currentTime := uint64(time.Now().Unix())
+	currentTime := time.Now().Unix()
 	name := "LaLa-UpdateMultiple_test2_" + strconv.FormatInt(int64(currentTime), 10)
 	data := &models.User{
 		Name: &name,
@@ -250,9 +279,9 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
-		assert.True(t, uint64(0) != *value.CreatedAt, "CreatedAt was change")
-		assert.True(t, uint64(0) != *value.UpdatedAt, "UpdatedAt was change")
-		assert.True(t, uint16(0) != *value.Age, "age was change")
+		assert.True(t, 0 != *value.CreatedAt, "CreatedAt was change")
+		assert.True(t, 0 != *value.UpdatedAt, "UpdatedAt was change")
+		assert.True(t, 0 != *value.Age, "age was change")
 	}
 }
 

@@ -12,28 +12,14 @@
 開發的後期，因為model與ORM本身的依賴與責任設計的不良，也時常導致出現一堆model混亂的場景，本ORM將會克服此情境。
 
 # todo
-- eloquent
-    - create Paginate
-	```json
-	{
-		"total": 50,
-		"per_page": 15,
-		"current_page": 1,
-		"last_page": 4,
-		"from": 1,
-		"to": 15,
-		"data":[
-				{
-					// Record...
-				},
-				{
-					// Record...
-				}
-		]
-	}
-	```
 - repo
     - create GetUnderage
+- test
+	- origin
+		- func Test_User_Paginate_Filter(t *testing.T) {
+	- service
+		- func Test_User_Paginate_Full(t *testing.T) {
+		- func Test_User_Paginate_Filter(t *testing.T) {
 # 開始前的作業
 - cp .env.example .env
 # usage example
@@ -53,9 +39,9 @@ import (
 type User struct {
 	ID        *string `bson:"_id,omitempty"`
 	Name      *string `bson:"name,omitempty"`
-	Age       *uint16 `bson:"age,omitempty"`
-	CreatedAt *uint64 `bson:"created_at,omitempty"`
-	UpdatedAt *uint64 `bson:"updated_at,omitempty"`
+	Age       *int    `bson:"age,omitempty"`
+	CreatedAt *int64  `bson:"created_at,omitempty"`
+	UpdatedAt *int64  `bson:"updated_at,omitempty"`
 }
 
 func main() {
@@ -63,16 +49,15 @@ func main() {
 	defer core.Cleanup()
 
 	userOrm := orm.NewEloquent[User]("users")
-	id := "6380cf16742f1bd2061f28b8"
-	user, ok := userOrm.Find(id)
+	id := "638f8be88d53c89a1c7d2e39"
+	user, err := userOrm.Find(id)
 
-	if !ok {
+	if err != nil {
 		log.Fatal("user id not found !")
 	}
 
 	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *user.ID, *user.Name, *user.Age, *user.CreatedAt, *user.UpdatedAt)
 }
-
 ```
 
 # Ref
