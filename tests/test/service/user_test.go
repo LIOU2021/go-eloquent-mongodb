@@ -57,6 +57,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 	count := 10
 	for i := 0; i < count; i++ {
 		currentTime := time.Now().Unix()
+		currentTime = currentTime + int64(i)
 		age := 1 + i*10
 		name := "serviceT_" + strconv.FormatInt(int64(i), 10)
 		data = append(data, &models.User{
@@ -65,7 +66,6 @@ func Test_User_InsertMultiple(t *testing.T) {
 			CreatedAt: &currentTime,
 			UpdatedAt: &currentTime,
 		})
-		currentTime = currentTime + int64(i)
 	}
 
 	InsertedIDs, err := userService.InsertMultiple(data)

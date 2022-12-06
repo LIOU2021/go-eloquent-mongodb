@@ -61,6 +61,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 
 	for i := 0; i < count; i++ {
 		currentTime := time.Now().Unix()
+		currentTime = currentTime + int64(i)
 		name := "c8_" + strconv.FormatInt(int64(i), 10)
 		age := 1 + i*10
 		data = append(data, &models.User{
@@ -69,7 +70,6 @@ func Test_User_InsertMultiple(t *testing.T) {
 			CreatedAt: &currentTime,
 			UpdatedAt: &currentTime,
 		})
-		currentTime = currentTime + int64(i)
 	}
 
 	InsertedIDs, err := userOrm.InsertMultiple(data)
