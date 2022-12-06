@@ -42,7 +42,7 @@ func Test_User_Insert_A_Document(t *testing.T) {
 
 	testId = insertId
 
-	assert.Nil(t, err, "insert not ok")
+	assert.NoError(t, err, "insert not ok")
 	assert.True(t, insertId != "", "id was null")
 }
 
@@ -69,7 +69,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 	InsertedIDs, err := userService.InsertMultiple(data)
 	logger.LogDebug.Info("InsertedIDs  : ", InsertedIDs)
 
-	assert.Nil(t, err, "insertMultiple not ok")
+	assert.NoError(t, err, "insertMultiple not ok")
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
@@ -81,7 +81,7 @@ func Test_User_Find_A_Document(t *testing.T) {
 
 	userFind, userFindErr := userService.Find(testId)
 	assert.NotNil(t, userFind, "userFind was nil")
-	assert.Nil(t, userFindErr, "find not ok")
+	assert.NoError(t, userFindErr, "find not ok")
 	if userFind != nil {
 		assert.True(t, *userFind.ID != "", "id not find")
 		logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
@@ -97,7 +97,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	ageCondition := 30
 
 	userFindMultiple, err := userService.FindMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
-	assert.Nil(t, err, "findMultiple not ok")
+	assert.NoError(t, err, "findMultiple not ok")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
 		assert.LessOrEqual(t, *value.Age, uint16(ageCondition), "not less than 30")
@@ -112,7 +112,7 @@ func Test_User_All(t *testing.T) {
 	userService := services.NewUserService()
 
 	userAll, err := userService.All()
-	assert.Nil(t, err, "all not ok")
+	assert.NoError(t, err, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
 		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, *v.ID, *v.Name, *v.Age, *v.CreatedAt, *v.UpdatedAt)
@@ -138,7 +138,7 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userErr := userService.Find(testId)
-	assert.Nil(t, userErr, "updateCount for find user not ok")
+	assert.NoError(t, userErr, "updateCount for find user not ok")
 	assert.Equal(t, name, *user.Name, "update name not working")
 	assert.Equal(t, age, *user.Age, "update age not working")
 }
@@ -160,7 +160,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userErr := userService.Find(testId)
-	assert.Nil(t, userErr, "updateCount for find user not ok")
+	assert.NoError(t, userErr, "updateCount for find user not ok")
 	assert.True(t, "" != *user.Name, "name was change")
 	assert.True(t, 0 != *user.CreatedAt, "CreatedAt was change")
 	assert.True(t, 0 != *user.UpdatedAt, "UpdatedAt was change")
@@ -207,12 +207,12 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 
 	ageCondition := 30
 	filter := bson.M{"age": bson.M{"$lte": ageCondition}}
-	updateCount, ok := userService.UpdateMultiple(filter, data)
-	assert.True(t, ok, "updateCount not ok")
+	updateCount, err := userService.UpdateMultiple(filter, data)
+	assert.NoError(t, err, "updateCount not ok")
 	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
 	t.Log("UpdateMultiple Count : ", updateCount)
 	userFindMultiple, err := userService.FindMultiple(bson.M{"name": name})
-	assert.Nil(t, err, "findMultiple not ok")
+	assert.NoError(t, err, "findMultiple not ok")
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
@@ -236,12 +236,12 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	ageCondition := 30
 	filter := bson.M{"age": bson.M{"$gte": ageCondition}}
-	updateCount, ok := userService.UpdateMultiple(filter, data)
-	assert.True(t, ok, "updateCount not ok")
+	updateCount, err := userService.UpdateMultiple(filter, data)
+	assert.NoError(t, err, "updateCount not ok")
 	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
 	t.Log("UpdateMultiple Count : ", updateCount)
 	userFindMultiple, err := userService.FindMultiple(bson.M{"name": name})
-	assert.Nil(t, err, "findMultiple not ok")
+	assert.NoError(t, err, "findMultiple not ok")
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
@@ -258,7 +258,7 @@ func Test_User_Delete_A_Document(t *testing.T) {
 	userService := services.NewUserService()
 
 	deleteCount, err := userService.Delete(testId)
-	assert.Nil(t, err, "delete not ok")
+	assert.NoError(t, err, "delete not ok")
 	assert.Equal(t, 1, deleteCount, "delete not working")
 }
 
@@ -270,7 +270,7 @@ func Test_User_Delete_Multiple_Document(t *testing.T) {
 
 	ageCondition := 99999
 	deleteCount, err := userService.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
-	assert.Nil(t, err, "delete not ok")
+	assert.NoError(t, err, "delete not ok")
 	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")
 	t.Logf("DeleteMultiple : %d", deleteCount)
 }

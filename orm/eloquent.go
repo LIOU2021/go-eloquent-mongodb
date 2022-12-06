@@ -28,7 +28,7 @@ type IEloquent[T interface{}] interface {
 	Delete(id string) (deleteCount int, err error)
 	DeleteMultiple(filter interface{}) (deleteCount int, err error)
 	Update(id string, data *T) (modifiedCount int, err error)
-	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool)
+	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, err error)
 	Count(filter interface{}) (count int, ok bool)
 }
 
@@ -320,7 +320,13 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
 	return
 }
 
-func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool) {
+/**
+ * @title update multiple document
+ * @param filter interface{} ex:struct, bson
+ * @return modifiedCount int modified document count
+ * @return err error fail message from query
+ */
+func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount int, err error) {
 
 	client := e.Connect()
 
@@ -332,11 +338,10 @@ func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount
 	result, err := coll.UpdateMany(context.TODO(), filter, update)
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 	}
 
-	ok = true
 	modifiedCount = int(result.ModifiedCount)
 	return
 }
