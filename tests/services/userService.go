@@ -27,7 +27,7 @@ func (service *UserService) Find(id string) (user *models.User, err error) {
 	return
 }
 
-func (service *UserService) FindMultiple(filter interface{}) (users []*models.User, err error) {
+func (service *UserService) FindMultiple(filter any) (users []*models.User, err error) {
 	users, err = service.repo.Orm.FindMultiple(filter)
 	return
 }
@@ -51,7 +51,7 @@ func (service *UserService) Delete(id string) (deleteCount int, err error) {
 	return
 }
 
-func (service *UserService) DeleteMultiple(filter interface{}) (deleteCount int, err error) {
+func (service *UserService) DeleteMultiple(filter any) (deleteCount int, err error) {
 	deleteCount, err = service.repo.Orm.DeleteMultiple(filter)
 	return
 }
@@ -63,14 +63,14 @@ func (service *UserService) Update(id string, data *models.User) (updateCount in
 	return
 }
 
-func (service *UserService) UpdateMultiple(filter interface{}, data *models.User) (updateCount int, err error) {
+func (service *UserService) UpdateMultiple(filter any, data *models.User) (updateCount int, err error) {
 	currentTime := uint64(time.Now().Unix())
 	data.UpdatedAt = &currentTime
 	updateCount, err = service.repo.Orm.UpdateMultiple(filter, data)
 	return
 }
 
-func (e *UserService) Count(filter interface{}) (count int, err error) {
+func (e *UserService) Count(filter any) (count int, err error) {
 	count, err = e.repo.Orm.Count(filter)
 	return
 }

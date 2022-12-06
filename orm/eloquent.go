@@ -12,27 +12,28 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type Eloquent[t interface{}] struct {
+type Eloquent[t any] struct {
 	db         string //db name
 	Collection string
 	uri        string
 	logTitle   string
 }
 
-type IEloquent[T interface{}] interface {
+type IEloquent[T any] interface {
 	All() (models []*T, err error)
 	Find(id string) (model *T, err error)
-	FindMultiple(filter interface{}) (models []*T, err error)
+	FindMultiple(filter any) (models []*T, err error)
 	Insert(data *T) (insertedID string, err error)
 	InsertMultiple(data []*T) (InsertedIDs []string, err error)
 	Delete(id string) (deleteCount int, err error)
-	DeleteMultiple(filter interface{}) (deleteCount int, err error)
+	DeleteMultiple(filter any) (deleteCount int, err error)
 	Update(id string, data *T) (modifiedCount int, err error)
-	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, err error)
-	Count(filter interface{}) (count int, err error)
+	UpdateMultiple(filter any, data *T) (modifiedCount int, err error)
+	Count(filter any) (count int, err error)
+	Paginate(limit int, page int) (pagination *pagination[T], err error)
 }
 
-func NewEloquent[T interface{}](collection string) *Eloquent[T] {
+func NewEloquent[T any](collection string) *Eloquent[T] {
 	return &Eloquent[T]{
 		db:         os.Getenv("mongodb_name"),
 		Collection: collection,
@@ -142,11 +143,11 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 
 /**
  * @title find multiple document
- * @param filter interface{}
+ * @param filter any
  * @return models []*T your model slice
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, err error) {
+func (e *Eloquent[T]) FindMultiple(filter any) (models []*T, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -207,7 +208,7 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
-	var slice []interface{}
+	var slice []any
 	for _, value := range data {
 		slice = append(slice, value)
 	}
@@ -263,11 +264,11 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
 
 /**
  * @title delete Multiple document
- * @param filter interface{} ex:bson.M{}, struct, bson.D{}
+ * @param filter any ex:bson.M{}, struct, bson.D{}
  * @return deleteCount int delete document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, err error) {
+func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -322,11 +323,11 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
 
 /**
  * @title update multiple document
- * @param filter interface{} ex:struct, bson
+ * @param filter any ex:struct, bson
  * @return modifiedCount int modified document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount int, err error) {
+func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, err error) {
 
 	client := e.Connect()
 
@@ -348,11 +349,11 @@ func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount
 
 /**
  * @title counter document
- * @param filter interface{} you can use struct, bson,etc .., or nil
+ * @param filter any you can use struct, bson,etc .., or nil
  * @return count int filter document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Count(filter interface{}) (count int, err error) {
+func (e *Eloquent[T]) Count(filter any) (count int, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -378,6 +379,26 @@ func (e *Eloquent[T]) Count(filter interface{}) (count int, err error) {
 
 		count = int(countD)
 
+	}
+
+	return
+}
+
+/**
+ * @title create pagination for your model data
+ * @param limit int how many data display in each page
+ * @param page int choose page for pagination
+ * @return pagination *pagination[T]
+ */
+func (e *Eloquent[T]) Paginate(limit int, page int) (paginated *pagination[T], err error) {
+	total, totalErr := e.Count(nil)
+	if totalErr != nil {
+		err = e.errMsg(totalErr)
+		logger.LogDebug.Error(e.logTitle, totalErr, getCurrentFuncInfo(1))
+	}
+
+	paginated = &pagination[T]{
+		Total: uint(total),
 	}
 
 	return
