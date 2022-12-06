@@ -22,8 +22,8 @@ func (service *UserService) All() (userAll []*models.User, ok bool) {
 	return
 }
 
-func (service *UserService) Find(id string) (user *models.User, ok bool) {
-	user, ok = service.repo.Orm.Find(id)
+func (service *UserService) Find(id string) (user *models.User, err error) {
+	user, err = service.repo.Orm.Find(id)
 	return
 }
 

@@ -21,7 +21,7 @@ type Eloquent[t interface{}] struct {
 
 type IEloquent[T interface{}] interface {
 	All() (models []*T, ok bool)
-	Find(id string) (model *T, ok bool)
+	Find(id string) (model *T, err error)
 	FindMultiple(filter interface{}) (models []*T, ok bool)
 	Insert(data *T) (insertedID string, ok bool)
 	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
@@ -47,12 +47,12 @@ func NewEloquent[T interface{}](collection string) *Eloquent[T] {
 func (e *Eloquent[T]) Connect() (client *mongo.Client) {
 	uri := e.uri
 	if uri == "" {
-		logger.LogDebug.Error(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo(1))
 		os.Exit(0)
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		os.Exit(0)
 	}
 
@@ -64,7 +64,7 @@ func (e *Eloquent[T]) Connect() (client *mongo.Client) {
  */
 func (e *Eloquent[T]) Close(client *mongo.Client) {
 	if err := client.Disconnect(context.TODO()); err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 	}
 }
 
@@ -91,7 +91,7 @@ func (e *Eloquent[T]) All() (models []*T, ok bool) {
 	cursor, err := coll.Find(context.TODO(), bson.M{})
 
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		ok = false
 		return
 	}
@@ -99,7 +99,7 @@ func (e *Eloquent[T]) All() (models []*T, ok bool) {
 	models = []*T{}
 
 	if err = cursor.All(context.TODO(), &models); err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		ok = false
 		return
 
@@ -111,14 +111,14 @@ func (e *Eloquent[T]) All() (models []*T, ok bool) {
 /**
  * @title find a document by _id
  * @param id string _id of document
- * @return model your model struct
- * @return ok bool query success or fail
+ * @return model struct your model struct
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) Find(id string) (model *T, ok bool) {
+func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
-		ok = false
+		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
+		err = e.errMsg(err)
 		return
 	}
 
@@ -131,14 +131,14 @@ func (e *Eloquent[T]) Find(id string) (model *T, ok bool) {
 	err = coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
 
 	if err == mongo.ErrNoDocuments {
-		ok = true
+		err = e.errMsg(err)
 		return
 	} else if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
-		ok = false
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+		e.errMsg(err)
 		return
 	}
-	ok = true
+
 	return
 }
 
@@ -158,7 +158,7 @@ func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, ok bool) {
 	cursor, err := coll.Find(context.TODO(), filter)
 
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		ok = false
 		return
 	}
@@ -166,7 +166,7 @@ func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, ok bool) {
 	models = []*T{}
 
 	if err = cursor.All(context.TODO(), &models); err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		ok = false
 		return
 
@@ -190,7 +190,7 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, ok bool) {
 	result, err := coll.InsertOne(context.TODO(), data)
 	if err != nil {
 		ok = false
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -219,7 +219,7 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, ok bool) 
 	result, err := coll.InsertMany(context.TODO(), slice)
 	if err != nil {
 		ok = false
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -240,7 +240,7 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, ok bool) 
 func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
 		ok = false
 		return
 	}
@@ -256,7 +256,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, ok bool) {
 	result, err := coll.DeleteOne(context.TODO(), filter)
 	if err != nil {
 		ok = false
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -281,7 +281,7 @@ func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, ok bo
 	results, err := coll.DeleteMany(context.TODO(), filter)
 	if err != nil {
 		ok = false
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
 
@@ -293,7 +293,7 @@ func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, ok bo
 func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, ok bool) {
 	idH, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
 		ok = false
 		return
 	}
@@ -310,7 +310,7 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, ok bool) {
 	result, err := coll.UpdateOne(context.TODO(), filter, update)
 
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		ok = false
 		return
 	}
@@ -331,7 +331,7 @@ func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount
 
 	result, err := coll.UpdateMany(context.TODO(), filter, update)
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		ok = false
 		return
 	}
@@ -352,7 +352,7 @@ func (e *Eloquent[T]) Count(filter interface{}) (count int, ok bool) {
 		estCount, estCountErr := coll.EstimatedDocumentCount(context.TODO())
 		if estCountErr != nil {
 			ok = false
-			logger.LogDebug.Error(e.logTitle, estCountErr, getCurrentFuncInfo())
+			logger.LogDebug.Error(e.logTitle, estCountErr, getCurrentFuncInfo(1))
 			return
 		}
 
@@ -362,7 +362,7 @@ func (e *Eloquent[T]) Count(filter interface{}) (count int, ok bool) {
 		countD, err := coll.CountDocuments(context.TODO(), filter)
 		if err != nil {
 			ok = false
-			logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo())
+			logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 			return
 		}
 

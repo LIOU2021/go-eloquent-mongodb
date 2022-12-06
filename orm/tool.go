@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -27,7 +28,14 @@ func getLogTitle(collection string) string {
 	return fmt.Sprintf("[collection - %s] : ", collection)
 }
 
-func getCurrentFuncInfo() string {
-	pc, file, line, _ := runtime.Caller(1)
+func getCurrentFuncInfo(skip int) string {
+	pc, file, line, _ := runtime.Caller(skip)
 	return fmt.Sprintf("\nPC:%s\nFILE:%s\nLINE:%d\n", runtime.FuncForPC(pc).Name(), file, line)
+}
+
+func (e *Eloquent[T]) errMsg(msg ...any) (err error) {
+	concatMsg := fmt.Sprintln(msg...)
+	message := fmt.Sprintln(e.logTitle, concatMsg, getCurrentFuncInfo(2))
+	err = errors.New(message)
+	return
 }

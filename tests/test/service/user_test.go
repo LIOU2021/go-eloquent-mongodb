@@ -79,9 +79,9 @@ func Test_User_Find_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	userFind, ok := userService.Find(testId)
+	userFind, userFindErr := userService.Find(testId)
 	assert.NotNil(t, userFind, "userFind was nil")
-	assert.True(t, ok, "find not ok")
+	assert.Nil(t, userFindErr, "find not ok")
 	if userFind != nil {
 		assert.True(t, *userFind.ID != "", "id not find")
 		logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
@@ -137,8 +137,8 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	assert.True(t, ok, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
-	user, userOk := userService.Find(testId)
-	assert.True(t, userOk, "updateCount for find user not ok")
+	user, userErr := userService.Find(testId)
+	assert.Nil(t, userErr, "updateCount for find user not ok")
 	assert.Equal(t, name, *user.Name, "update name not working")
 	assert.Equal(t, age, *user.Age, "update age not working")
 }
@@ -159,8 +159,8 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 	assert.True(t, ok, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
-	user, userOk := userService.Find(testId)
-	assert.True(t, userOk, "updateCount for find user not ok")
+	user, userErr := userService.Find(testId)
+	assert.Nil(t, userErr, "updateCount for find user not ok")
 	assert.True(t, "" != *user.Name, "name was change")
 	assert.True(t, 0 != *user.CreatedAt, "CreatedAt was change")
 	assert.True(t, 0 != *user.UpdatedAt, "UpdatedAt was change")
