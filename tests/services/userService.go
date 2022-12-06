@@ -70,7 +70,7 @@ func (service *UserService) UpdateMultiple(filter interface{}, data *models.User
 	return
 }
 
-func (e *UserService) Count(filter interface{}) (count int, ok bool) {
-	count, ok = e.repo.Orm.Count(filter)
+func (e *UserService) Count(filter interface{}) (count int, err error) {
+	count, err = e.repo.Orm.Count(filter)
 	return
 }

@@ -29,7 +29,7 @@ type IEloquent[T interface{}] interface {
 	DeleteMultiple(filter interface{}) (deleteCount int, err error)
 	Update(id string, data *T) (modifiedCount int, err error)
 	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, err error)
-	Count(filter interface{}) (count int, ok bool)
+	Count(filter interface{}) (count int, err error)
 }
 
 func NewEloquent[T interface{}](collection string) *Eloquent[T] {
@@ -346,7 +346,13 @@ func (e *Eloquent[T]) UpdateMultiple(filter interface{}, data *T) (modifiedCount
 	return
 }
 
-func (e *Eloquent[T]) Count(filter interface{}) (count int, ok bool) {
+/**
+ * @title counter document
+ * @param filter interface{} you can use struct, bson,etc .., or nil
+ * @return count int filter document count
+ * @return err error fail message from query
+ */
+func (e *Eloquent[T]) Count(filter interface{}) (count int, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -356,22 +362,20 @@ func (e *Eloquent[T]) Count(filter interface{}) (count int, ok bool) {
 	if filter == nil {
 		estCount, estCountErr := coll.EstimatedDocumentCount(context.TODO())
 		if estCountErr != nil {
-			ok = false
+			err = e.errMsg(err)
 			logger.LogDebug.Error(e.logTitle, estCountErr, getCurrentFuncInfo(1))
 			return
 		}
 
-		ok = true
 		count = int(estCount)
 	} else {
-		countD, err := coll.CountDocuments(context.TODO(), filter)
+		countD, errD := coll.CountDocuments(context.TODO(), filter)
 		if err != nil {
-			ok = false
+			err = e.errMsg(errD)
 			logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 			return
 		}
 
-		ok = true
 		count = int(countD)
 
 	}
