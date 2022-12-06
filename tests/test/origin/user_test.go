@@ -274,8 +274,8 @@ func Test_User_Delete_Multiple_Document(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 
 	ageCondition := 99999
-	deleteCount, ok := userOrm.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
-	assert.True(t, ok, "delete not ok")
+	deleteCount, err := userOrm.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	assert.Nil(t, err, "delete not ok")
 	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")
 	t.Logf("DeleteMultiple : %d", deleteCount)
 }

@@ -26,7 +26,7 @@ type IEloquent[T interface{}] interface {
 	Insert(data *T) (insertedID string, err error)
 	InsertMultiple(data []*T) (InsertedIDs []string, err error)
 	Delete(id string) (deleteCount int, err error)
-	DeleteMultiple(filter interface{}) (deleteCount int, ok bool)
+	DeleteMultiple(filter interface{}) (deleteCount int, err error)
 	Update(id string, data *T) (modifiedCount int, ok bool)
 	UpdateMultiple(filter interface{}, data *T) (modifiedCount int, ok bool)
 	Count(filter interface{}) (count int, ok bool)
@@ -265,9 +265,9 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
  * @title delete Multiple document
  * @param filter interface{} ex:bson.M{}, struct, bson.D{}
  * @return deleteCount int delete document count
- * @return ok bool query success or fail
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, ok bool) {
+func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -276,12 +276,11 @@ func (e *Eloquent[T]) DeleteMultiple(filter interface{}) (deleteCount int, ok bo
 
 	results, err := coll.DeleteMany(context.TODO(), filter)
 	if err != nil {
-		ok = false
+		err = e.errMsg(err)
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
 		return
 	}
 
-	ok = true
 	deleteCount = int(results.DeletedCount)
 	return
 }

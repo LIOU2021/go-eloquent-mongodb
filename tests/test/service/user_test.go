@@ -269,8 +269,8 @@ func Test_User_Delete_Multiple_Document(t *testing.T) {
 	userService := services.NewUserService()
 
 	ageCondition := 99999
-	deleteCount, ok := userService.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
-	assert.True(t, ok, "delete not ok")
+	deleteCount, err := userService.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	assert.Nil(t, err, "delete not ok")
 	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")
 	t.Logf("DeleteMultiple : %d", deleteCount)
 }

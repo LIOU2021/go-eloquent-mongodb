@@ -51,8 +51,8 @@ func (service *UserService) Delete(id string) (deleteCount int, err error) {
 	return
 }
 
-func (service *UserService) DeleteMultiple(filter interface{}) (deleteCount int, ok bool) {
-	deleteCount, ok = service.repo.Orm.DeleteMultiple(filter)
+func (service *UserService) DeleteMultiple(filter interface{}) (deleteCount int, err error) {
+	deleteCount, err = service.repo.Orm.DeleteMultiple(filter)
 	return
 }
 
