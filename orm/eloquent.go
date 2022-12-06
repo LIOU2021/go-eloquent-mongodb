@@ -22,7 +22,7 @@ type Eloquent[t interface{}] struct {
 type IEloquent[T interface{}] interface {
 	All() (models []*T, err error)
 	Find(id string) (model *T, err error)
-	FindMultiple(filter interface{}) (models []*T, ok bool)
+	FindMultiple(filter interface{}) (models []*T, err error)
 	Insert(data *T) (insertedID string, ok bool)
 	InsertMultiple(data []*T) (InsertedIDs []string, ok bool)
 	Delete(id string) (deleteCount int, ok bool)
@@ -133,7 +133,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 		return
 	} else if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		e.errMsg(err)
+		err = e.errMsg(err)
 		return
 	}
 
@@ -142,11 +142,11 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 
 /**
  * @title find multiple document
- * @param models interface{}
+ * @param filter interface{}
  * @return models []*T your model slice
- * @return ok bool query success or fail
+ * @return err error fail message from query
  */
-func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, ok bool) {
+func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
@@ -157,7 +157,7 @@ func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, ok bool) {
 
 	if err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
 	}
 
@@ -165,11 +165,10 @@ func (e *Eloquent[T]) FindMultiple(filter interface{}) (models []*T, ok bool) {
 
 	if err = cursor.All(context.TODO(), &models); err != nil {
 		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		ok = false
+		err = e.errMsg(err)
 		return
-
 	}
-	ok = true
+
 	return
 }
 

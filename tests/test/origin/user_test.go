@@ -98,8 +98,8 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 
 	ageCondition := 30
 
-	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
-	assert.True(t, ok, "findMultiple not ok")
+	userFindMultiple, err := userOrm.FindMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	assert.Nil(t, err, "findMultiple not ok")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
 		assert.LessOrEqual(t, *value.Age, uint16(ageCondition), "not less than 30")
@@ -216,8 +216,8 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	assert.True(t, ok, "updateCount not ok")
 	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
 	t.Log("UpdateMultiple Count : ", updateCount)
-	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"name": name})
-	assert.True(t, ok, "findMultiple not ok")
+	userFindMultiple, err := userOrm.FindMultiple(bson.M{"name": name})
+	assert.Nil(t, err, "findMultiple not ok")
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
@@ -245,8 +245,8 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 	assert.True(t, ok, "updateCount not ok")
 	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
 	t.Log("UpdateMultiple Count : ", updateCount)
-	userFindMultiple, ok := userOrm.FindMultiple(bson.M{"name": name})
-	assert.True(t, ok, "findMultiple not ok")
+	userFindMultiple, err := userOrm.FindMultiple(bson.M{"name": name})
+	assert.Nil(t, err, "findMultiple not ok")
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
 	for _, value := range userFindMultiple {
