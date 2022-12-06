@@ -18,8 +18,6 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
-    - name: Install dependencies
-      run: go get .
     - name: Test Origin
       run: go test -v ./tests/test/origin/...
     - name: Test Service
