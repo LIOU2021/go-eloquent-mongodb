@@ -424,14 +424,14 @@ func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagi
 
 	if total > 0 {
 		from = limit*(page-1) + 1
+		if page == lastPage {
+			to = total
+		} else {
+			to = limit * page
+		}
 	} else {
 		from = 0
-	}
-
-	if page == lastPage {
-		to = total
-	} else {
-		to = limit * page
+		to = 0
 	}
 
 	defer func() {
