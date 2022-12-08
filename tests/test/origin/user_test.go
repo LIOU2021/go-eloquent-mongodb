@@ -3,6 +3,7 @@ package origin
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -26,9 +27,16 @@ func cleanup() {
 
 var testId string
 
-func Test_User_Insert_A_Document(t *testing.T) {
+func TestMain(m *testing.M) {
 	setup()
-	defer cleanup()
+
+	exitCode := m.Run()
+
+	cleanup()
+
+	os.Exit(exitCode)
+}
+func Test_1_User_Insert_A_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	currentTime := time.Now().Unix()
@@ -50,9 +58,7 @@ func Test_User_Insert_A_Document(t *testing.T) {
 	assert.True(t, insertId != "", "id was null")
 }
 
-func Test_User_InsertMultiple(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_2_User_InsertMultiple(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -80,9 +86,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
-func Test_User_Find_A_Document(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_3_User_Find_A_Document(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 	userFind, err := userOrm.Find(testId)
 	assert.NotNil(t, userFind, "userFind was nil")
@@ -93,9 +97,7 @@ func Test_User_Find_A_Document(t *testing.T) {
 	}
 }
 
-func Test_User_Find_Multiple_Document(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_4_User_Find_Multiple_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -110,9 +112,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	}
 }
 
-func Test_User_All(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_5_User_All(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -125,9 +125,7 @@ func Test_User_All(t *testing.T) {
 	}
 }
 
-func Test_User_Update_A_Document_By_Full(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_6_User_Update_A_Document_By_Full(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -151,9 +149,7 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	assert.Equal(t, currentTime, *user.UpdatedAt, "update time not working")
 }
 
-func Test_User_Update_A_Document_By_Part(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_7_User_Update_A_Document_By_Part(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -175,9 +171,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 	assert.Equal(t, age, *user.Age, "update age not working")
 }
 
-func Test_User_Count_All(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_8_User_Count_All(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	count, err := userOrm.Count(nil)
@@ -186,9 +180,7 @@ func Test_User_Count_All(t *testing.T) {
 	t.Logf("total count : %d", count)
 }
 
-func Test_User_Count_Filter(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_9_User_Count_Filter(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
@@ -198,9 +190,7 @@ func Test_User_Count_Filter(t *testing.T) {
 	t.Logf("filter count : %d", count)
 }
 
-func Test_User_Paginate_Full(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_10_User_Paginate_Full(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	currentPage := 2
@@ -229,9 +219,7 @@ func Test_User_Paginate_Full(t *testing.T) {
 	t.Log(string(jsonResponse))
 }
 
-func Test_User_Paginate_Filter(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_11_User_Paginate_Filter(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	currentPage := 2
@@ -260,9 +248,7 @@ func Test_User_Paginate_Filter(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log(string(jsonResponse))
 }
-func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_12_User_Update_Multiple_Document_By_Full(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -292,9 +278,7 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	}
 }
 
-func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_13_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -321,9 +305,7 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 	}
 }
 
-func Test_User_Delete_A_Document(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_14_User_Delete_A_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
@@ -332,9 +314,7 @@ func Test_User_Delete_A_Document(t *testing.T) {
 	assert.Equal(t, 1, deleteCount, "delete not working")
 }
 
-func Test_User_Delete_Multiple_Document(t *testing.T) {
-	setup()
-	defer cleanup()
+func Test_15_User_Delete_Multiple_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
