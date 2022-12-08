@@ -1,6 +1,7 @@
 package service
 
 import (
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -24,9 +25,17 @@ func cleanup() {
 
 var testId string
 
-func Test_User_Insert_A_Document(t *testing.T) {
+func TestMain(m *testing.M) {
 	setup()
-	defer cleanup()
+
+	exitCode := m.Run()
+
+	cleanup()
+
+	os.Exit(exitCode)
+}
+
+func Test_User_Insert_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -47,8 +56,6 @@ func Test_User_Insert_A_Document(t *testing.T) {
 }
 
 func Test_User_InsertMultiple(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -76,8 +83,6 @@ func Test_User_InsertMultiple(t *testing.T) {
 }
 
 func Test_User_Find_A_Document(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -91,8 +96,6 @@ func Test_User_Find_A_Document(t *testing.T) {
 }
 
 func Test_User_Find_Multiple_Document(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -108,8 +111,6 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 }
 
 func Test_User_All(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -123,8 +124,6 @@ func Test_User_All(t *testing.T) {
 }
 
 func Test_User_Update_A_Document_By_Full(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -146,8 +145,6 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 }
 
 func Test_User_Update_A_Document_By_Part(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -170,8 +167,6 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 }
 
 func Test_User_Count_All(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 	count, err := userService.Count(nil)
@@ -181,8 +176,6 @@ func Test_User_Count_All(t *testing.T) {
 }
 
 func Test_User_Count_Filter(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
@@ -193,8 +186,6 @@ func Test_User_Count_Filter(t *testing.T) {
 }
 
 func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -225,8 +216,6 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 }
 
 func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -254,8 +243,6 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 }
 
 func Test_User_Delete_A_Document(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
@@ -265,8 +252,6 @@ func Test_User_Delete_A_Document(t *testing.T) {
 }
 
 func Test_User_Delete_Multiple_Document(t *testing.T) {
-	setup()
-	defer cleanup()
 
 	userService := services.NewUserService()
 
