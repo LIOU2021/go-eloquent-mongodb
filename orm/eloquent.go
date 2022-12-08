@@ -30,7 +30,7 @@ type IEloquent[T any] interface {
 	Update(id string, data *T) (modifiedCount int, err error)
 	UpdateMultiple(filter any, data *T) (modifiedCount int, err error)
 	Count(filter any) (count int, err error)
-	Paginate(limit int, page int, filter any) (paginated *pagination[T], err error)
+	Paginate(limit int, page int, filter any) (paginated *Pagination[T], err error)
 }
 
 func NewEloquent[T any](collection string) *Eloquent[T] {
@@ -392,7 +392,7 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
  * @return pagination *pagination[T]
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *pagination[T], err error) {
+func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagination[T], err error) {
 	client := e.Connect()
 
 	defer e.Close(client)

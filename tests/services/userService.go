@@ -3,6 +3,7 @@ package services
 import (
 	"time"
 
+	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/repositories"
 )
@@ -72,5 +73,10 @@ func (service *UserService) UpdateMultiple(filter any, data *models.User) (updat
 
 func (e *UserService) Count(filter any) (count int, err error) {
 	count, err = e.repo.Orm.Count(filter)
+	return
+}
+
+func (e *UserService) Paginate(limit int, currentPage int, filter interface{}) (paginated *orm.Pagination[models.User], err error) {
+	paginated, err = e.repo.Orm.Paginate(limit, currentPage, filter)
 	return
 }

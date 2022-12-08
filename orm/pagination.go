@@ -1,6 +1,6 @@
 package orm
 
-type pagination[T any] struct {
+type Pagination[T any] struct {
 	Total       int  `json:"total"`
 	PerPage     int  `json:"per_page"`
 	CurrentPage int  `json:"current_page"`
@@ -10,8 +10,8 @@ type pagination[T any] struct {
 	Data        []*T `json:"data"`
 }
 
-func newPagination[T any](total int, limit int, page int, lastPage int, from int, to int, data []*T) *pagination[T] {
-	return &pagination[T]{
+func newPagination[T any](total int, limit int, page int, lastPage int, from int, to int, data []*T) *Pagination[T] {
+	return &Pagination[T]{
 		Total:       total,
 		PerPage:     limit,
 		CurrentPage: page,
