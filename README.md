@@ -15,8 +15,6 @@
 - repo
     - create GetUnderage
 - test
-	- origin
-		- func Test_User_Paginate_Filter(t *testing.T) {
 	- service
 		- func Test_User_Paginate_Full(t *testing.T) {
 		- func Test_User_Paginate_Filter(t *testing.T) {

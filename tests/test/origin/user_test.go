@@ -224,6 +224,33 @@ func Test_User_Paginate_Full(t *testing.T) {
 	}
 }
 
+func Test_User_Paginate_Filter(t *testing.T) {
+	setup()
+	defer cleanup()
+
+	userOrm := orm.NewEloquent[models.User]("users")
+	currentPage := 2
+	limit := 4
+	filter := bson.M{"age": bson.M{"$gte": 30}}
+	pagination, err := userOrm.Paginate(limit, currentPage, filter)
+	assert.NoError(t, err, "paginate not ok")
+	t.Logf("pagination response : %+v", pagination)
+	assert.Equal(t, 2, pagination.LastPage, "lastPage err")
+	assert.Equal(t, 8, pagination.Total, "total err")
+	assert.Equal(t, currentPage, pagination.CurrentPage, "currentPage err")
+	assert.Equal(t, limit, pagination.PerPage, "PerPage err")
+	assert.Equal(t, limit*(currentPage-1)+1, pagination.From, "From err")
+	assert.Equal(t, limit*currentPage, pagination.To, "To err")
+
+	var preCreatedAt int64
+	for index, value := range pagination.Data {
+		if index > 0 {
+			assert.Less(t, *value.CreatedAt, preCreatedAt, "order by created_at desc fail")
+		}
+		preCreatedAt = *value.CreatedAt
+		t.Logf("pagination data - id : %s, name : %s. age : %d, created_at : %d, updated_at : %d", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+	}
+}
 func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	setup()
 	defer cleanup()
