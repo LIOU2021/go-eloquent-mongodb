@@ -1,6 +1,7 @@
 package origin
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"testing"
@@ -222,6 +223,10 @@ func Test_User_Paginate_Full(t *testing.T) {
 		preCreatedAt = *value.CreatedAt
 		t.Logf("pagination data - id : %s, name : %s. age : %d, created_at : %d, updated_at : %d", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
 	}
+
+	jsonResponse, err := json.Marshal(pagination)
+	assert.NoError(t, err)
+	t.Log(string(jsonResponse))
 }
 
 func Test_User_Paginate_Filter(t *testing.T) {
@@ -250,6 +255,10 @@ func Test_User_Paginate_Filter(t *testing.T) {
 		preCreatedAt = *value.CreatedAt
 		t.Logf("pagination data - id : %s, name : %s. age : %d, created_at : %d, updated_at : %d", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
 	}
+
+	jsonResponse, err := json.Marshal(pagination)
+	assert.NoError(t, err)
+	t.Log(string(jsonResponse))
 }
 func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	setup()
