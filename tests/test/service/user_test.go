@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"testing"
@@ -45,6 +46,8 @@ func TestAll(t *testing.T) {
 	t.Run("test_User_Update_A_Document_By_Part", test_User_Update_A_Document_By_Part)
 	t.Run("test_User_Count_All", test_User_Count_All)
 	t.Run("test_User_Count_Filter", test_User_Count_Filter)
+	t.Run("test_User_Paginate_Full", test_User_Paginate_Full)
+	t.Run("test_User_Paginate_Filter", test_User_Paginate_Filter)
 	t.Run("test_User_Update_Multiple_Document_By_Full", test_User_Update_Multiple_Document_By_Full)
 	t.Run("test_User_Update_Multiple_Document_By_Part", test_User_Update_Multiple_Document_By_Part)
 	t.Run("test_User_Delete_A_Document", test_User_Delete_A_Document)
@@ -199,6 +202,65 @@ func test_User_Count_Filter(t *testing.T) {
 	assert.NoError(t, err, "count not ok")
 	assert.GreaterOrEqual(t, count, 3, "count not working")
 	t.Logf("filter count : %d", count)
+}
+
+func test_User_Paginate_Full(t *testing.T) {
+
+	userService := services.NewUserService()
+	currentPage := 2
+	limit := 3
+	pagination, err := userService.Paginate(limit, currentPage, bson.M{})
+	assert.NoError(t, err, "paginate not ok")
+	logger.LogDebug.Infof("pagination response : %+v", pagination)
+	assert.Equal(t, 4, pagination.LastPage, "lastPage err")
+	assert.Equal(t, 11, pagination.Total, "total err")
+	assert.Equal(t, currentPage, pagination.CurrentPage, "currentPage err")
+	assert.Equal(t, limit, pagination.PerPage, "PerPage err")
+	assert.Equal(t, limit*(currentPage-1)+1, pagination.From, "From err")
+	assert.Equal(t, limit*currentPage, pagination.To, "To err")
+
+	var preCreatedAt int64
+	for index, value := range pagination.Data {
+		if index > 0 {
+			assert.Less(t, *value.CreatedAt, preCreatedAt, "order by created_at desc fail")
+		}
+		preCreatedAt = *value.CreatedAt
+		t.Logf("pagination data - id : %s, name : %s. age : %d, created_at : %d, updated_at : %d", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+	}
+
+	jsonResponse, err := json.Marshal(pagination)
+	assert.NoError(t, err)
+	t.Log(string(jsonResponse))
+}
+
+func test_User_Paginate_Filter(t *testing.T) {
+
+	userService := services.NewUserService()
+	currentPage := 2
+	limit := 4
+	filter := bson.M{"age": bson.M{"$gte": 30}}
+	pagination, err := userService.Paginate(limit, currentPage, filter)
+	assert.NoError(t, err, "paginate not ok")
+	logger.LogDebug.Infof("pagination response : %+v", pagination)
+	assert.Equal(t, 2, pagination.LastPage, "lastPage err")
+	assert.Equal(t, 8, pagination.Total, "total err")
+	assert.Equal(t, currentPage, pagination.CurrentPage, "currentPage err")
+	assert.Equal(t, limit, pagination.PerPage, "PerPage err")
+	assert.Equal(t, limit*(currentPage-1)+1, pagination.From, "From err")
+	assert.Equal(t, limit*currentPage, pagination.To, "To err")
+
+	var preCreatedAt int64
+	for index, value := range pagination.Data {
+		if index > 0 {
+			assert.Less(t, *value.CreatedAt, preCreatedAt, "order by created_at desc fail")
+		}
+		preCreatedAt = *value.CreatedAt
+		t.Logf("pagination data - id : %s, name : %s. age : %d, created_at : %d, updated_at : %d", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+	}
+
+	jsonResponse, err := json.Marshal(pagination)
+	assert.NoError(t, err)
+	t.Log(string(jsonResponse))
 }
 
 func test_User_Update_Multiple_Document_By_Full(t *testing.T) {

@@ -14,10 +14,6 @@
 # todo
 - repo
     - create GetUnderage
-- test
-	- service
-		- func Test_User_Paginate_Full(t *testing.T) {
-		- func Test_User_Paginate_Filter(t *testing.T) {
 # 開始前的作業
 - cp .env.example .env
 # usage example
