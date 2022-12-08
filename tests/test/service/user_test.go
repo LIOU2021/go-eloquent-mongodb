@@ -131,21 +131,19 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 
 	userService := services.NewUserService()
 
-	name := "LaLa"
-	age := 30
+	user, err := userService.Find(testId)
+	assert.NoError(t, err)
 
-	data := &models.User{
-		Name: &name,
-		Age:  &age,
-	}
-	updateCount, err := userService.Update(testId, data)
+	*user.Age = 30
+	*user.Name = "user service update by full"
+	updateCount, err := userService.Update(user)
 	assert.NoError(t, err, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
 	user, userErr := userService.Find(testId)
 	assert.NoError(t, userErr, "updateCount for find user not ok")
-	assert.Equal(t, name, *user.Name, "update name not working")
-	assert.Equal(t, age, *user.Age, "update age not working")
+	assert.Equal(t, "user service update by full", *user.Name, "update name not working")
+	assert.Equal(t, 30, *user.Age, "update age not working")
 }
 
 func Test_User_Update_A_Document_By_Part(t *testing.T) {
@@ -154,11 +152,10 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 
 	age := time.Now().Second()
 
-	data := &models.User{
-		Age: &age,
-	}
-
-	updateCount, err := userService.Update(testId, data)
+	user, err := userService.Find(testId)
+	assert.NoError(t, err)
+	user.Age = &age
+	updateCount, err := userService.Update(user)
 	assert.NoError(t, err, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 

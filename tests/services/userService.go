@@ -57,7 +57,9 @@ func (service *UserService) DeleteMultiple(filter any) (deleteCount int, err err
 	return
 }
 
-func (service *UserService) Update(id string, data *models.User) (updateCount int, err error) {
+func (service *UserService) Update(data *models.User) (updateCount int, err error) {
+	id := *data.ID
+	data.ID = nil
 	currentTime := time.Now().Unix()
 	data.UpdatedAt = &currentTime
 	updateCount, err = service.repo.Orm.Update(id, data)
