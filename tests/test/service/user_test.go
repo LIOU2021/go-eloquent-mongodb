@@ -35,7 +35,23 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-func Test_User_Insert_A_Document(t *testing.T) {
+func TestAll(t *testing.T) {
+	t.Run("test_User_Insert_A_Document", test_User_Insert_A_Document)
+	t.Run("test_User_InsertMultiple", test_User_InsertMultiple)
+	t.Run("test_User_Find_A_Document", test_User_Find_A_Document)
+	t.Run("test_User_Find_Multiple_Document", test_User_Find_Multiple_Document)
+	t.Run("test_User_All", test_User_All)
+	t.Run("test_User_Update_A_Document_By_Full", test_User_Update_A_Document_By_Full)
+	t.Run("test_User_Update_A_Document_By_Part", test_User_Update_A_Document_By_Part)
+	t.Run("test_User_Count_All", test_User_Count_All)
+	t.Run("test_User_Count_Filter", test_User_Count_Filter)
+	t.Run("test_User_Update_Multiple_Document_By_Full", test_User_Update_Multiple_Document_By_Full)
+	t.Run("test_User_Update_Multiple_Document_By_Part", test_User_Update_Multiple_Document_By_Part)
+	t.Run("test_User_Delete_A_Document", test_User_Delete_A_Document)
+	t.Run("test_User_Delete_Multiple_Document", test_User_Delete_Multiple_Document)
+}
+
+func test_User_Insert_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -55,7 +71,7 @@ func Test_User_Insert_A_Document(t *testing.T) {
 	assert.True(t, insertId != "", "id was null")
 }
 
-func Test_User_InsertMultiple(t *testing.T) {
+func test_User_InsertMultiple(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -82,7 +98,7 @@ func Test_User_InsertMultiple(t *testing.T) {
 	assert.Equal(t, count, len(InsertedIDs), "insertMultiple count miss match")
 }
 
-func Test_User_Find_A_Document(t *testing.T) {
+func test_User_Find_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -95,7 +111,7 @@ func Test_User_Find_A_Document(t *testing.T) {
 	}
 }
 
-func Test_User_Find_Multiple_Document(t *testing.T) {
+func test_User_Find_Multiple_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -110,7 +126,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	}
 }
 
-func Test_User_All(t *testing.T) {
+func test_User_All(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -123,7 +139,7 @@ func Test_User_All(t *testing.T) {
 	}
 }
 
-func Test_User_Update_A_Document_By_Full(t *testing.T) {
+func test_User_Update_A_Document_By_Full(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -144,7 +160,7 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 	assert.Equal(t, age, *user.Age, "update age not working")
 }
 
-func Test_User_Update_A_Document_By_Part(t *testing.T) {
+func test_User_Update_A_Document_By_Part(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -166,7 +182,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 	assert.Equal(t, age, *user.Age, "update age not working")
 }
 
-func Test_User_Count_All(t *testing.T) {
+func test_User_Count_All(t *testing.T) {
 
 	userService := services.NewUserService()
 	count, err := userService.Count(nil)
@@ -175,7 +191,7 @@ func Test_User_Count_All(t *testing.T) {
 	t.Logf("total count : %d", count)
 }
 
-func Test_User_Count_Filter(t *testing.T) {
+func test_User_Count_Filter(t *testing.T) {
 
 	userService := services.NewUserService()
 	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
@@ -185,7 +201,7 @@ func Test_User_Count_Filter(t *testing.T) {
 	t.Logf("filter count : %d", count)
 }
 
-func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
+func test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -215,7 +231,7 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 	}
 }
 
-func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
+func test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -242,7 +258,7 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 	}
 }
 
-func Test_User_Delete_A_Document(t *testing.T) {
+func test_User_Delete_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
@@ -251,7 +267,7 @@ func Test_User_Delete_A_Document(t *testing.T) {
 	assert.Equal(t, 1, deleteCount, "delete not working")
 }
 
-func Test_User_Delete_Multiple_Document(t *testing.T) {
+func test_User_Delete_Multiple_Document(t *testing.T) {
 
 	userService := services.NewUserService()
 
