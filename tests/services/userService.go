@@ -6,6 +6,7 @@ import (
 	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/repositories"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserService struct {
@@ -18,8 +19,8 @@ func NewUserService() *UserService {
 	}
 }
 
-func (service *UserService) All() (userAll []*models.User, err error) {
-	userAll, err = service.repo.Orm.All()
+func (service *UserService) All(opts ...*options.FindOptions) (userAll []*models.User, err error) {
+	userAll, err = service.repo.Orm.All(opts...)
 	return
 }
 
