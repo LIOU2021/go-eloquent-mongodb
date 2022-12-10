@@ -12,8 +12,7 @@
 開發的後期，因為model與ORM本身的依賴與責任設計的不良，也時常導致出現一堆model混亂的場景，本ORM將會克服此情境。
 
 # todo
-- eloquent
-	- add option for all and findMultiple
+
 # 開始前的作業
 - cp .env.example .env
 # usage example

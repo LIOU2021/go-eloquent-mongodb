@@ -29,8 +29,8 @@ func (service *UserService) Find(id string) (user *models.User, err error) {
 	return
 }
 
-func (service *UserService) FindMultiple(filter any) (users []*models.User, err error) {
-	users, err = service.repo.Orm.FindMultiple(filter)
+func (service *UserService) FindMultiple(filter any, opts ...*options.FindOptions) (users []*models.User, err error) {
+	users, err = service.repo.Orm.FindMultiple(filter, opts...)
 	return
 }
 

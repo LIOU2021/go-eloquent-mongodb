@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -111,6 +112,28 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
 		assert.LessOrEqual(t, *value.Age, ageCondition, "not less than 30")
+		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+	}
+}
+
+func Test_User_Find_Multiple_Document_With_Option(t *testing.T) {
+
+	userService := services.NewUserService()
+
+	ageCondition := 30
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	filter := bson.M{"age": bson.M{"$lte": ageCondition}}
+	userFindMultiple, err := userService.FindMultiple(filter, opts)
+	assert.NoError(t, err, "findMultiple not ok")
+	preCreatedAt := int64(0)
+	for index, value := range userFindMultiple {
+		if index != 0 {
+			assert.Less(t, *value.CreatedAt, preCreatedAt)
+		}
+		preCreatedAt = *value.CreatedAt
+
+		assert.True(t, *value.ID != "", "id not find")
+		assert.LessOrEqual(t, *value.Age, ageCondition, fmt.Sprintf("not less than %d", ageCondition))
 		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
 	}
 }
