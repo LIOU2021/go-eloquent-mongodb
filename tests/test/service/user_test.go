@@ -302,6 +302,21 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 	}
 }
 
+func Test_User_GetUnderage(t *testing.T) {
+
+	userService := services.NewUserService()
+
+	ageCondition := 30
+
+	users, err := userService.GetUnderage(ageCondition)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(users), 1)
+
+	for _, user := range users {
+		assert.Less(t, *user.Age, ageCondition)
+	}
+}
+
 func Test_User_Delete_A_Document(t *testing.T) {
 
 	userService := services.NewUserService()

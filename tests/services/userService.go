@@ -82,3 +82,8 @@ func (e *UserService) Paginate(limit int, currentPage int, filter interface{}) (
 	paginated, err = e.repo.Orm.Paginate(limit, currentPage, filter)
 	return
 }
+
+func (e *UserService) GetUnderage(age int) (users []*models.User, err error) {
+	users, err = e.repo.GetUnderage(age)
+	return
+}
