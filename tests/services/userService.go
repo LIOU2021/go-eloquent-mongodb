@@ -87,3 +87,8 @@ func (e *UserService) GetUnderage(age int) (users []*models.User, err error) {
 	users, err = e.repo.GetUnderage(age)
 	return
 }
+
+func (e *UserService) GetOverage(age int) (users []*models.User, err error) {
+	users, err = e.repo.GetOverage(age)
+	return
+}
