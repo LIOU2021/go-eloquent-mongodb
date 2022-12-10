@@ -96,7 +96,7 @@ func Test_User_Find_A_Document(t *testing.T) {
 	assert.NoError(t, userFindErr, "find not ok")
 	if userFind != nil {
 		assert.True(t, *userFind.ID != "", "id not find")
-		logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
+		logger.LogDebug.Infof("[userService@Find] - id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", *userFind.ID, *userFind.Name, *userFind.Age, *userFind.CreatedAt, *userFind.UpdatedAt)
 	}
 }
 
@@ -111,7 +111,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
 		assert.LessOrEqual(t, *value.Age, ageCondition, "not less than 30")
-		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
+		logger.LogDebug.Infof("[user@FindMultiple] - id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", *value.ID, *value.Name, *value.Age, *value.CreatedAt, *value.UpdatedAt)
 	}
 }
 
@@ -123,7 +123,7 @@ func Test_User_All(t *testing.T) {
 	assert.NoError(t, err, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
-		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", i, *v.ID, *v.Name, *v.Age, *v.CreatedAt, *v.UpdatedAt)
+		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", i, *v.ID, *v.Name, *v.Age, *v.CreatedAt, *v.UpdatedAt)
 		assert.True(t, *v.ID != "", "_id is empty")
 	}
 }

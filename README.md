@@ -50,7 +50,7 @@ func main() {
 		log.Fatal("user id not found !")
 	}
 
-	fmt.Printf("id : %s, name : %s, age : %d, created_time : %d, updated_time : %d\n", *user.ID, *user.Name, *user.Age, *user.CreatedAt, *user.UpdatedAt)
+	fmt.Printf("id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", *user.ID, *user.Name, *user.Age, *user.CreatedAt, *user.UpdatedAt)
 }
 ```
 
