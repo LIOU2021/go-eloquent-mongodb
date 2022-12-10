@@ -23,7 +23,7 @@ type IEloquent[T any] interface {
 	Connect() (client *mongo.Client)
 	Close(client *mongo.Client)
 	GetCollection(client *mongo.Client) *mongo.Collection
-	All() (models []*T, err error)
+	All(opts ...*options.FindOptions) (models []*T, err error)
 	Find(id string) (model *T, err error)
 	FindMultiple(filter any) (models []*T, err error)
 	Insert(data *T) (insertedID string, err error)
@@ -84,14 +84,14 @@ func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
  * @return models []*T your model slice
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) All() (models []*T, err error) {
+func (e *Eloquent[T]) All(opts ...*options.FindOptions) (models []*T, err error) {
 	client := e.Connect()
 
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
 
-	cursor, errF := coll.Find(context.TODO(), bson.M{})
+	cursor, errF := coll.Find(context.TODO(), bson.M{}, opts...)
 
 	if errF != nil {
 		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))

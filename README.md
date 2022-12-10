@@ -13,7 +13,7 @@
 
 # todo
 - eloquent
-	- add option 
+	- add option for all and findMultiple
 # 開始前的作業
 - cp .env.example .env
 # usage example
