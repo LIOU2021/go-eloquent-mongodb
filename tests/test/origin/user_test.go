@@ -12,6 +12,7 @@ import (
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/stretchr/testify/assert"
@@ -123,6 +124,24 @@ func Test_User_All(t *testing.T) {
 	assert.NoError(t, err, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
+		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", i, *v.ID, *v.Name, *v.Age, *v.CreatedAt, *v.UpdatedAt)
+		assert.True(t, *v.ID != "", "_id is empty")
+	}
+}
+
+func Test_User_All_With_Option(t *testing.T) {
+
+	userOrm := orm.NewEloquent[models.User]("users")
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	userAll, err := userOrm.All(opts)
+	assert.NoError(t, err, "all not ok")
+	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
+	preCreatedAt := int64(0)
+	for i, v := range userAll {
+		if i != 0 {
+			assert.Less(t, *v.CreatedAt, preCreatedAt)
+		}
+		preCreatedAt = *v.CreatedAt
 		logger.LogDebug.Infof("index : %d, id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", i, *v.ID, *v.Name, *v.Age, *v.CreatedAt, *v.UpdatedAt)
 		assert.True(t, *v.ID != "", "_id is empty")
 	}
