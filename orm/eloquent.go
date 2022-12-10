@@ -20,6 +20,9 @@ type Eloquent[t any] struct {
 }
 
 type IEloquent[T any] interface {
+	Connect() (client *mongo.Client)
+	Close(client *mongo.Client)
+	GetCollection(client *mongo.Client) *mongo.Collection
 	All() (models []*T, err error)
 	Find(id string) (model *T, err error)
 	FindMultiple(filter any) (models []*T, err error)

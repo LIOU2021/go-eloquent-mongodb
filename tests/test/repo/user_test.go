@@ -46,3 +46,18 @@ func Test_User_GetUnderage(t *testing.T) {
 		assert.Less(t, *user.Age, ageCondition)
 	}
 }
+
+func Test_User_GetOverage(t *testing.T) {
+
+	userRep := repositories.NewUserRepository()
+
+	ageCondition := 30
+
+	users, err := userRep.GetOverage(ageCondition)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(users), 1)
+
+	for _, user := range users {
+		assert.Greater(t, *user.Age, ageCondition)
+	}
+}

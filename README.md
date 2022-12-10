@@ -14,8 +14,6 @@
 # todo
 - eloquent
 	- add option 
-- repo
-    - call eloquent connect
 # 開始前的作業
 - cp .env.example .env
 # usage example
