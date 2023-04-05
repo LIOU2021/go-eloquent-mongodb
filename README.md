@@ -12,9 +12,9 @@
 開發的後期，因為model與ORM本身的依賴與責任設計的不良，也時常導致出現一堆model混亂的場景，本ORM將會克服此情境。
 
 # todo
+- 製作pagination v2 ，不要使用skip作為切換分頁
+- pagination功能支持option 可以sort by .. some field
 
-# 開始前的作業
-- cp .env.example .env
 # usage example
 - more sample see tests\test
 
@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/LIOU2021/go-eloquent-mongodb/core"
 	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 )
 
@@ -38,11 +37,10 @@ type User struct {
 }
 
 func main() {
-	core.Setup()
-	defer core.Cleanup()
+	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
 
 	userOrm := orm.NewEloquent[User]("users")
-	id := "638f8be88d53c89a1c7d2e39"
+	id := "642d5b2298ba2bb73c55e5c4"
 	user, err := userOrm.Find(id)
 
 	if err != nil {
@@ -51,6 +49,7 @@ func main() {
 
 	fmt.Printf("id : %s, name : %s, age : %d, created_at : %d, updated_at : %d\n", *user.ID, *user.Name, *user.Age, *user.CreatedAt, *user.UpdatedAt)
 }
+
 ```
 
 # Ref

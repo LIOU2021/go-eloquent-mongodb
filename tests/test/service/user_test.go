@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LIOU2021/go-eloquent-mongodb/core"
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
+	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/services"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,24 +18,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() {
-	core.Setup()
-}
-
-func cleanup() {
-	core.Cleanup()
-}
-
 var testId string
 
 func TestMain(m *testing.M) {
-	setup()
+	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
 
 	exitCode := m.Run()
 
 	defer func() {
-		cleanup()
-
 		os.Exit(exitCode)
 	}()
 

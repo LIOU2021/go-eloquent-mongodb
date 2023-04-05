@@ -3,15 +3,14 @@ package orm
 import (
 	"errors"
 	"fmt"
-	"os"
 	"runtime"
 )
 
 func getUri() (uri string) {
-	user := os.Getenv("mongodb_user")
-	password := os.Getenv("mongodb_password")
-	host := os.Getenv("mongodb_host")
-	port := os.Getenv("mongodb_port")
+	user := conf.User
+	password := conf.Password
+	host := conf.Host
+	port := conf.Port
 
 	domain := ""
 	if user == "" {

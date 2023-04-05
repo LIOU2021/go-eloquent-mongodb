@@ -9,9 +9,13 @@ import (
 var LogDebug *logger.Logger
 
 func Init() {
-	LogDebug = logger.Init("DebugLog", true, false, ioutil.Discard)
+	if LogDebug == nil {
+		LogDebug = logger.Init("DebugLog", true, false, ioutil.Discard)
+	}
 }
 
 func Close() {
-	LogDebug.Close()
+	if LogDebug != nil {
+		LogDebug.Close()
+	}
 }

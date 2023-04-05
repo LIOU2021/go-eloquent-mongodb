@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/google/logger v1.1.1
-	github.com/joho/godotenv v1.4.0
 	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.11.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22

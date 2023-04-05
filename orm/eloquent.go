@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"os"
 
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 
@@ -11,6 +10,35 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
+
+func init() {
+	logger.Init()
+}
+
+var conf *config
+
+type config struct {
+	// db name ex:go-eloquent-mongodb
+	DB string
+	// mongodb host ex:127.0.0.1
+	Host string
+	// mongodb port ex:27017
+	Port string
+	// mongodb user
+	User string
+	// mongodb password
+	Password string
+}
+
+// setup mongodb connect config
+func Setup(db, host, port, password string) {
+	conf = &config{
+		DB:       db,
+		Host:     host,
+		Port:     port,
+		Password: password,
+	}
+}
 
 type Eloquent[t any] struct {
 	db         string //db name
@@ -38,7 +66,7 @@ type IEloquent[T any] interface {
 
 func NewEloquent[T any](collection string) *Eloquent[T] {
 	return &Eloquent[T]{
-		db:         os.Getenv("mongodb_name"),
+		db:         conf.DB,
 		Collection: collection,
 		uri:        getUri(),
 		logTitle:   getLogTitle(collection),
@@ -51,13 +79,11 @@ func NewEloquent[T any](collection string) *Eloquent[T] {
 func (e *Eloquent[T]) Connect() (client *mongo.Client) {
 	uri := e.uri
 	if uri == "" {
-		logger.LogDebug.Error(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo(1))
-		os.Exit(0)
+		logger.LogDebug.Fatal(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo(1))
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
-		os.Exit(0)
+		logger.LogDebug.Fatal(e.logTitle, err, getCurrentFuncInfo(1))
 	}
 
 	return client

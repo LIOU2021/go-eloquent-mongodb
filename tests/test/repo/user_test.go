@@ -4,30 +4,20 @@ import (
 	"os"
 	"testing"
 
-	"github.com/LIOU2021/go-eloquent-mongodb/core"
+	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/repositories"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() {
-	core.Setup()
-}
-
-func cleanup() {
-	core.Cleanup()
-}
-
 var testId string
 
 func TestMain(m *testing.M) {
-	setup()
+	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
 
 	exitCode := m.Run()
 
 	defer func() {
-		cleanup()
-
 		os.Exit(exitCode)
 	}()
 }

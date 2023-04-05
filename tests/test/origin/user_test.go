@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LIOU2021/go-eloquent-mongodb/core"
 	"github.com/LIOU2021/go-eloquent-mongodb/logger"
 	"github.com/LIOU2021/go-eloquent-mongodb/orm"
 	"github.com/LIOU2021/go-eloquent-mongodb/tests/models"
@@ -18,24 +17,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() {
-	core.Setup()
-}
-
-func cleanup() {
-	core.Cleanup()
-}
-
 var testId string
 
 func TestMain(m *testing.M) {
-	setup()
+	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
 
 	exitCode := m.Run()
 
 	defer func() {
-		cleanup()
-
 		os.Exit(exitCode)
 	}()
 }
@@ -277,7 +266,13 @@ func Test_User_Paginate_Filter(t *testing.T) {
 	assert.Equal(t, currentPage, pagination.CurrentPage, "currentPage err")
 	assert.Equal(t, limit, pagination.PerPage, "PerPage err")
 	assert.Equal(t, limit*(currentPage-1)+1, pagination.From, "From err")
-	assert.Equal(t, limit*currentPage, pagination.To, "To err")
+	expectTo := 0
+	if pagination.Total%limit == 0 {
+		expectTo = limit * currentPage
+	} else {
+		expectTo = limit*currentPage - (limit*pagination.LastPage - pagination.Total)
+	}
+	assert.Equal(t, expectTo, pagination.To, "To err")
 
 	var preCreatedAt int64
 	for index, value := range pagination.Data {
