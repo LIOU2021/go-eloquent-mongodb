@@ -51,7 +51,7 @@ func Test_User_Insert_A_Document(t *testing.T) {
 	assert.True(t, insertId != "", "id was null")
 }
 
-func Test_User_InsertMultiple(t *testing.T) {
+func Test_User_Insert_Multiple(t *testing.T) {
 
 	userService := services.NewUserService()
 
