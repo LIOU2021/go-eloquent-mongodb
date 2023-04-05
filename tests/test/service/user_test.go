@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -22,10 +23,11 @@ var testId string
 
 func TestMain(m *testing.M) {
 	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
-	orm.Connect()
+	ctx := context.Background()
+	orm.Connect(ctx)
 	exitCode := m.Run()
 	defer func() {
-		orm.Disconnect()
+		orm.Disconnect(ctx)
 		os.Exit(exitCode)
 	}()
 }

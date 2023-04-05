@@ -78,7 +78,7 @@ func NewEloquent[T any](collection string) *Eloquent[T] {
 /**
  * @title connect mongodb server
  */
-func Connect() *mongo.Client {
+func Connect(ctx context.Context) *mongo.Client {
 	if conn != nil {
 		return conn
 	}
@@ -86,7 +86,7 @@ func Connect() *mongo.Client {
 	if uri == "" {
 		logger.LogDebug.Fatal(`[connect fail]: `, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo(1))
 	}
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		logger.LogDebug.Fatal(`[connect fail]: `, err, getCurrentFuncInfo(1))
 	}
@@ -97,12 +97,12 @@ func Connect() *mongo.Client {
 /**
  * @title disconnect mongodb server
  */
-func Disconnect() {
+func Disconnect(ctx context.Context) {
 	if conn == nil {
 		return
 	}
 
-	if err := conn.Disconnect(context.TODO()); err != nil {
+	if err := conn.Disconnect(ctx); err != nil {
 		logger.LogDebug.Error(`[disconnect fail]: `, err, getCurrentFuncInfo(1))
 	}
 }

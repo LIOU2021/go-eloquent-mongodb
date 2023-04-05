@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -17,8 +18,9 @@ type User struct {
 
 func main() {
 	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
-	orm.Connect()
-	defer orm.Disconnect()
+	ctx := context.Background()
+	orm.Connect(ctx)
+	defer orm.Disconnect(ctx)
 
 	userOrm := orm.NewEloquent[User]("users")
 	id := "642d5b2298ba2bb73c55e5c4"

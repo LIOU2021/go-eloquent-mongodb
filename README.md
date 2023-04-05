@@ -12,6 +12,7 @@
 開發的後期，因為model與ORM本身的依賴與責任設計的不良，也時常導致出現一堆model混亂的場景，本ORM將會克服此情境。
 
 # todo
+- refactory IEloquent 方法提供ctx arg
 
 # usage example
 - more sample see tests\test
@@ -20,6 +21,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -36,8 +38,9 @@ type User struct {
 
 func main() {
 	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
-	orm.Connect()
-	defer orm.Disconnect()
+	ctx := context.Background()
+	orm.Connect(ctx)
+	defer orm.Disconnect(ctx)
 
 	userOrm := orm.NewEloquent[User]("users")
 	id := "642d5b2298ba2bb73c55e5c4"
