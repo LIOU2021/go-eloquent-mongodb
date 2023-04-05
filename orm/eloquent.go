@@ -52,7 +52,7 @@ type Eloquent[t any] struct {
 }
 
 type IEloquent[T any] interface {
-	GetCollection(client *mongo.Client) *mongo.Collection
+	GetCollection() *mongo.Collection
 	All(opts ...*options.FindOptions) (models []*T, err error)
 	Find(id string) (model *T, err error)
 	FindMultiple(filter any, opts ...*options.FindOptions) (models []*T, err error)
@@ -110,8 +110,11 @@ func Disconnect() {
 /**
  * @title get collection instance
  */
-func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
-	return client.Database(e.db).Collection(e.Collection)
+func (e *Eloquent[T]) GetCollection() *mongo.Collection {
+	if conn == nil {
+		return nil
+	}
+	return conn.Database(e.db).Collection(e.Collection)
 }
 
 /**
@@ -120,7 +123,7 @@ func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) All(opts ...*options.FindOptions) (models []*T, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 	ctx := context.Background()
 	cursor, errF := coll.Find(ctx, bson.M{}, opts...)
 
@@ -165,7 +168,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 		return
 	}
 
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 	model = new(T)
 	errF := coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
 
@@ -188,7 +191,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (models []*T, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 	ctx := context.TODO()
 	cursor, errF := coll.Find(ctx, filter, opts...)
 
@@ -216,7 +219,7 @@ func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (mo
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 
 	result, errI := coll.InsertOne(context.TODO(), data)
 	if errI != nil {
@@ -235,7 +238,7 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 	var slice []any
 	for _, value := range data {
 		slice = append(slice, value)
@@ -271,7 +274,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
 		return
 	}
 
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 
 	filter := bson.M{"_id": idH}
 
@@ -293,7 +296,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 
 	results, errD := coll.DeleteMany(context.TODO(), filter)
 	if errD != nil {
@@ -320,7 +323,7 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
 		return
 	}
 
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 
 	filter := bson.M{"_id": idH}
 	update := bson.M{"$set": data}
@@ -344,7 +347,7 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 	update := bson.M{"$set": data}
 
 	result, errU := coll.UpdateMany(context.TODO(), filter, update)
@@ -365,7 +368,7 @@ func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, er
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Count(filter any) (count int, err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 
 	if filter == nil {
 		estCount, estCountErr := coll.EstimatedDocumentCount(context.TODO())
@@ -400,7 +403,7 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagination[T], err error) {
-	coll := e.GetCollection(conn)
+	coll := e.GetCollection()
 
 	total, totalErr := e.Count(filter)
 	if totalErr != nil {

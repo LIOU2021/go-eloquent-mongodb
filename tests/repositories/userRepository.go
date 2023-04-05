@@ -27,9 +27,7 @@ func (repo *UserRepository) GetUnderage(age int) (users []*models.User, err erro
 }
 
 func (repo *UserRepository) GetOverage(age int) (users []*models.User, err error) {
-
-	client := orm.Connect()
-	coll := repo.Orm.GetCollection(client)
+	coll := repo.Orm.GetCollection()
 
 	filter := bson.M{"age": bson.M{"$gt": age}}
 	cursor, errF := coll.Find(context.TODO(), filter)
