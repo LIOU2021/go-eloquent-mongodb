@@ -14,10 +14,10 @@ var testId string
 
 func TestMain(m *testing.M) {
 	orm.Setup("go-eloquent-mongo", "127.0.0.1", "27017", "")
-
+	orm.Connect()
 	exitCode := m.Run()
-
 	defer func() {
+		orm.Disconnect()
 		os.Exit(exitCode)
 	}()
 }

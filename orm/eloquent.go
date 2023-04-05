@@ -16,6 +16,7 @@ func init() {
 }
 
 var conf *config
+var conn *mongo.Client
 
 type config struct {
 	// db name ex:go-eloquent-mongodb
@@ -32,6 +33,9 @@ type config struct {
 
 // setup mongodb connect config
 func Setup(db, host, port, password string) {
+	if conf != nil {
+		return
+	}
 	conf = &config{
 		DB:       db,
 		Host:     host,
@@ -48,8 +52,6 @@ type Eloquent[t any] struct {
 }
 
 type IEloquent[T any] interface {
-	Connect() (client *mongo.Client)
-	Close(client *mongo.Client)
 	GetCollection(client *mongo.Client) *mongo.Collection
 	All(opts ...*options.FindOptions) (models []*T, err error)
 	Find(id string) (model *T, err error)
@@ -74,27 +76,34 @@ func NewEloquent[T any](collection string) *Eloquent[T] {
 }
 
 /**
- * @title creates a new Client connect
+ * @title connect mongodb server
  */
-func (e *Eloquent[T]) Connect() (client *mongo.Client) {
-	uri := e.uri
+func Connect() *mongo.Client {
+	if conn != nil {
+		return conn
+	}
+	uri := getUri()
 	if uri == "" {
-		logger.LogDebug.Fatal(e.logTitle, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo(1))
+		logger.LogDebug.Fatal(`[connect fail]: `, "You must set your 'mongodb_host' and 'mongodb_port' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable", getCurrentFuncInfo(1))
 	}
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
-		logger.LogDebug.Fatal(e.logTitle, err, getCurrentFuncInfo(1))
+		logger.LogDebug.Fatal(`[connect fail]: `, err, getCurrentFuncInfo(1))
 	}
-
-	return client
+	conn = client
+	return conn
 }
 
 /**
- * @title Close connect
+ * @title disconnect mongodb server
  */
-func (e *Eloquent[T]) Close(client *mongo.Client) {
-	if err := client.Disconnect(context.TODO()); err != nil {
-		logger.LogDebug.Error(e.logTitle, err, getCurrentFuncInfo(1))
+func Disconnect() {
+	if conn == nil {
+		return
+	}
+
+	if err := conn.Disconnect(context.TODO()); err != nil {
+		logger.LogDebug.Error(`[disconnect fail]: `, err, getCurrentFuncInfo(1))
 	}
 }
 
@@ -111,11 +120,7 @@ func (e *Eloquent[T]) GetCollection(client *mongo.Client) *mongo.Collection {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) All(opts ...*options.FindOptions) (models []*T, err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 	ctx := context.Background()
 	cursor, errF := coll.Find(ctx, bson.M{}, opts...)
 
@@ -160,11 +165,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 		return
 	}
 
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 	model = new(T)
 	errF := coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
 
@@ -187,11 +188,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (models []*T, err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 	ctx := context.TODO()
 	cursor, errF := coll.Find(ctx, filter, opts...)
 
@@ -219,11 +216,7 @@ func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (mo
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 
 	result, errI := coll.InsertOne(context.TODO(), data)
 	if errI != nil {
@@ -242,11 +235,7 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 	var slice []any
 	for _, value := range data {
 		slice = append(slice, value)
@@ -282,11 +271,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
 		return
 	}
 
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 
 	filter := bson.M{"_id": idH}
 
@@ -308,11 +293,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 
 	results, errD := coll.DeleteMany(context.TODO(), filter)
 	if errD != nil {
@@ -339,11 +320,7 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
 		return
 	}
 
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 
 	filter := bson.M{"_id": idH}
 	update := bson.M{"$set": data}
@@ -367,12 +344,7 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, err error) {
-
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 	update := bson.M{"$set": data}
 
 	result, errU := coll.UpdateMany(context.TODO(), filter, update)
@@ -393,11 +365,7 @@ func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, er
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Count(filter any) (count int, err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 
 	if filter == nil {
 		estCount, estCountErr := coll.EstimatedDocumentCount(context.TODO())
@@ -432,11 +400,7 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
  * @return err error fail message from query
  */
 func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagination[T], err error) {
-	client := e.Connect()
-
-	defer e.Close(client)
-
-	coll := e.GetCollection(client)
+	coll := e.GetCollection(conn)
 
 	total, totalErr := e.Count(filter)
 	if totalErr != nil {
