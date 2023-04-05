@@ -13,6 +13,12 @@
 
 # todo
 - refactory IEloquent 方法提供ctx arg
+- createIndex and ttl
+	- ref
+		- https://christiangiacomi.com/posts/mongodb-index-using-go/
+		- https://www.mongodb.com/docs/drivers/go/v1.8/fundamentals/indexes/
+		- https://www.mongodb.com/docs/manual/core/index-ttl/
+		- https://fmabid.medium.com/creating-ttl-index-in-mongodb-with-go-mongo-driver-48a51d899241
 
 # usage example
 - more sample see tests\test
