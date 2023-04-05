@@ -116,22 +116,32 @@ func (e *Eloquent[T]) All(opts ...*options.FindOptions) (models []*T, err error)
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
-
-	cursor, errF := coll.Find(context.TODO(), bson.M{}, opts...)
+	ctx := context.Background()
+	cursor, errF := coll.Find(ctx, bson.M{}, opts...)
 
 	if errF != nil {
 		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
 		err = e.errMsg(errF)
 		return
 	}
+	defer cursor.Close(ctx)
 
 	models = []*T{}
 
-	if errA := cursor.All(context.TODO(), &models); errA != nil {
-		logger.LogDebug.Error(e.logTitle, errA, getCurrentFuncInfo(1))
-		err = e.errMsg(errA)
-		return
+	for cursor.Next(ctx) {
+		model := new(T)
+		if errNext := cursor.Decode(&model); err != nil {
+			logger.LogDebug.Error(e.logTitle, errNext, getCurrentFuncInfo(1))
+			err = e.errMsg(errNext)
+			return
+		}
+		models = append(models, model)
+	}
 
+	if errC := cursor.Err(); err != nil {
+		logger.LogDebug.Error(e.logTitle, errC, getCurrentFuncInfo(1))
+		err = e.errMsg(errC)
+		return
 	}
 	return
 }
@@ -182,15 +192,15 @@ func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (mo
 	defer e.Close(client)
 
 	coll := e.GetCollection(client)
-
-	cursor, errF := coll.Find(context.TODO(), filter, opts...)
+	ctx := context.TODO()
+	cursor, errF := coll.Find(ctx, filter, opts...)
 
 	if errF != nil {
 		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
 		err = e.errMsg(errF)
 		return
 	}
-
+	defer cursor.Close(ctx)
 	models = []*T{}
 
 	if errA := cursor.All(context.TODO(), &models); errA != nil {
@@ -476,19 +486,29 @@ func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagi
 	findOptions.SetSort(bson.M{"created_at": -1})
 	findOptions.SetLimit(int64(limit))
 	findOptions.SetSkip(int64(limit * (page - 1)))
-
-	cursor, errF := coll.Find(context.TODO(), filter, findOptions)
+	ctx := context.TODO()
+	cursor, errF := coll.Find(ctx, filter, findOptions)
 	if errF != nil {
 		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))
 		err = e.errMsg(errF)
 		return
 	}
+	defer cursor.Close(ctx)
 
-	if errA := cursor.All(context.TODO(), &data); errA != nil {
-		logger.LogDebug.Error(e.logTitle, errA, getCurrentFuncInfo(1))
-		err = e.errMsg(errA)
-		return
+	for cursor.Next(ctx) {
+		model := new(T)
+		if errNext := cursor.Decode(&model); err != nil {
+			logger.LogDebug.Error(e.logTitle, errNext, getCurrentFuncInfo(1))
+			err = e.errMsg(errNext)
+			return
+		}
+		data = append(data, model)
 	}
 
+	if errC := cursor.Err(); err != nil {
+		logger.LogDebug.Error(e.logTitle, errC, getCurrentFuncInfo(1))
+		err = e.errMsg(errC)
+		return
+	}
 	return
 }
