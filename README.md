@@ -13,7 +13,6 @@
 
 # todo
 - 製作pagination v2 ，不要使用skip作為切換分頁
-- pagination功能支持option 可以sort by .. some field
 
 # usage example
 - more sample see tests\test

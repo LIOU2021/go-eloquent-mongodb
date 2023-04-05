@@ -432,6 +432,7 @@ func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagi
 	if totalErr != nil {
 		err = e.errMsg(totalErr)
 		logger.LogDebug.Error(e.logTitle, totalErr, getCurrentFuncInfo(1))
+		return
 	}
 
 	if limit < 1 {
