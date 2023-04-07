@@ -24,7 +24,7 @@ func main() {
 
 	userOrm := orm.NewEloquent[User]("users")
 	id := "642d5b2298ba2bb73c55e5c4"
-	user, err := userOrm.Find(id)
+	user, err := userOrm.Find(context.Background(), id)
 
 	if err != nil {
 		log.Fatal("user id not found !")

@@ -53,17 +53,17 @@ type Eloquent[t any] struct {
 
 type IEloquent[T any] interface {
 	GetCollection() *mongo.Collection
-	All(opts ...*options.FindOptions) (models []*T, err error)
-	Find(id string) (model *T, err error)
-	FindMultiple(filter any, opts ...*options.FindOptions) (models []*T, err error)
-	Insert(data *T) (insertedID string, err error)
-	InsertMultiple(data []*T) (InsertedIDs []string, err error)
-	Delete(id string) (deleteCount int, err error)
-	DeleteMultiple(filter any) (deleteCount int, err error)
-	Update(id string, data *T) (modifiedCount int, err error)
-	UpdateMultiple(filter any, data *T) (modifiedCount int, err error)
-	Count(filter any) (count int, err error)
-	Paginate(limit int, page int, filter any) (paginated *Pagination[T], err error)
+	All(ctx context.Context, opts ...*options.FindOptions) (models []*T, err error)
+	Find(ctx context.Context, id string) (model *T, err error)
+	FindMultiple(ctx context.Context, filter any, opts ...*options.FindOptions) (models []*T, err error)
+	Insert(ctx context.Context, data *T) (insertedID string, err error)
+	InsertMultiple(ctx context.Context, data []*T) (InsertedIDs []string, err error)
+	Delete(ctx context.Context, id string) (deleteCount int, err error)
+	DeleteMultiple(ctx context.Context, filter any) (deleteCount int, err error)
+	Update(ctx context.Context, id string, data *T) (modifiedCount int, err error)
+	UpdateMultiple(ctx context.Context, filter any, data *T) (modifiedCount int, err error)
+	Count(ctx context.Context, filter any) (count int, err error)
+	Paginate(ctx context.Context, limit int, page int, filter any) (paginated *Pagination[T], err error)
 }
 
 func NewEloquent[T any](collection string) *Eloquent[T] {
@@ -122,9 +122,8 @@ func (e *Eloquent[T]) GetCollection() *mongo.Collection {
  * @return models []*T your model slice
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) All(opts ...*options.FindOptions) (models []*T, err error) {
+func (e *Eloquent[T]) All(ctx context.Context, opts ...*options.FindOptions) (models []*T, err error) {
 	coll := e.GetCollection()
-	ctx := context.Background()
 	cursor, errF := coll.Find(ctx, bson.M{}, opts...)
 
 	if errF != nil {
@@ -160,7 +159,7 @@ func (e *Eloquent[T]) All(opts ...*options.FindOptions) (models []*T, err error)
  * @return model struct your model struct
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Find(id string) (model *T, err error) {
+func (e *Eloquent[T]) Find(ctx context.Context, id string) (model *T, err error) {
 	idH, errP := primitive.ObjectIDFromHex(id)
 	if errP != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
@@ -170,7 +169,7 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
 
 	coll := e.GetCollection()
 	model = new(T)
-	errF := coll.FindOne(context.TODO(), bson.M{"_id": idH}).Decode(model)
+	errF := coll.FindOne(ctx, bson.M{"_id": idH}).Decode(model)
 
 	if errF == mongo.ErrNoDocuments {
 		err = e.errMsg(errF)
@@ -190,9 +189,8 @@ func (e *Eloquent[T]) Find(id string) (model *T, err error) {
  * @return models []*T your model slice
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (models []*T, err error) {
+func (e *Eloquent[T]) FindMultiple(ctx context.Context, filter any, opts ...*options.FindOptions) (models []*T, err error) {
 	coll := e.GetCollection()
-	ctx := context.TODO()
 	cursor, errF := coll.Find(ctx, filter, opts...)
 
 	if errF != nil {
@@ -203,7 +201,7 @@ func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (mo
 	defer cursor.Close(ctx)
 	models = []*T{}
 
-	if errA := cursor.All(context.TODO(), &models); errA != nil {
+	if errA := cursor.All(ctx, &models); errA != nil {
 		logger.LogDebug.Error(e.logTitle, errA, getCurrentFuncInfo(1))
 		err = e.errMsg(errA)
 		return
@@ -218,10 +216,10 @@ func (e *Eloquent[T]) FindMultiple(filter any, opts ...*options.FindOptions) (mo
  * @return insertedID string _id of mongodb
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
+func (e *Eloquent[T]) Insert(ctx context.Context, data *T) (insertedID string, err error) {
 	coll := e.GetCollection()
 
-	result, errI := coll.InsertOne(context.TODO(), data)
+	result, errI := coll.InsertOne(ctx, data)
 	if errI != nil {
 		err = e.errMsg(errI)
 		logger.LogDebug.Error(e.logTitle, errI, getCurrentFuncInfo(1))
@@ -237,14 +235,14 @@ func (e *Eloquent[T]) Insert(data *T) (insertedID string, err error) {
  * @return InsertedIDs []string _id of mongodb
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error) {
+func (e *Eloquent[T]) InsertMultiple(ctx context.Context, data []*T) (InsertedIDs []string, err error) {
 	coll := e.GetCollection()
 	var slice []any
 	for _, value := range data {
 		slice = append(slice, value)
 	}
 
-	result, errI := coll.InsertMany(context.TODO(), slice)
+	result, errI := coll.InsertMany(ctx, slice)
 	if errI != nil {
 		err = e.errMsg(errI)
 		logger.LogDebug.Error(e.logTitle, errI, getCurrentFuncInfo(1))
@@ -266,7 +264,7 @@ func (e *Eloquent[T]) InsertMultiple(data []*T) (InsertedIDs []string, err error
  * @return deleteCount int delete document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
+func (e *Eloquent[T]) Delete(ctx context.Context, id string) (deleteCount int, err error) {
 	idH, errP := primitive.ObjectIDFromHex(id)
 	if errP != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
@@ -278,7 +276,7 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
 
 	filter := bson.M{"_id": idH}
 
-	result, errD := coll.DeleteOne(context.TODO(), filter)
+	result, errD := coll.DeleteOne(ctx, filter)
 	if errD != nil {
 		err = e.errMsg(errD)
 		logger.LogDebug.Error(e.logTitle, errD, getCurrentFuncInfo(1))
@@ -295,10 +293,10 @@ func (e *Eloquent[T]) Delete(id string) (deleteCount int, err error) {
  * @return deleteCount int delete document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
+func (e *Eloquent[T]) DeleteMultiple(ctx context.Context, filter any) (deleteCount int, err error) {
 	coll := e.GetCollection()
 
-	results, errD := coll.DeleteMany(context.TODO(), filter)
+	results, errD := coll.DeleteMany(ctx, filter)
 	if errD != nil {
 		err = e.errMsg(errD)
 		logger.LogDebug.Error(e.logTitle, errD, getCurrentFuncInfo(1))
@@ -315,7 +313,7 @@ func (e *Eloquent[T]) DeleteMultiple(filter any) (deleteCount int, err error) {
  * @return modifiedCount int modified document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) {
+func (e *Eloquent[T]) Update(ctx context.Context, id string, data *T) (modifiedCount int, err error) {
 	idH, errP := primitive.ObjectIDFromHex(id)
 	if errP != nil {
 		logger.LogDebug.Error(e.logTitle, "_id Hex fail", getCurrentFuncInfo(1))
@@ -328,7 +326,7 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
 	filter := bson.M{"_id": idH}
 	update := bson.M{"$set": data}
 
-	result, errU := coll.UpdateOne(context.TODO(), filter, update)
+	result, errU := coll.UpdateOne(ctx, filter, update)
 
 	if errU != nil {
 		logger.LogDebug.Error(e.logTitle, errU, getCurrentFuncInfo(1))
@@ -346,11 +344,11 @@ func (e *Eloquent[T]) Update(id string, data *T) (modifiedCount int, err error) 
  * @return modifiedCount int modified document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, err error) {
+func (e *Eloquent[T]) UpdateMultiple(ctx context.Context, filter any, data *T) (modifiedCount int, err error) {
 	coll := e.GetCollection()
 	update := bson.M{"$set": data}
 
-	result, errU := coll.UpdateMany(context.TODO(), filter, update)
+	result, errU := coll.UpdateMany(ctx, filter, update)
 	if errU != nil {
 		logger.LogDebug.Error(e.logTitle, errU, getCurrentFuncInfo(1))
 		err = e.errMsg(errU)
@@ -367,7 +365,7 @@ func (e *Eloquent[T]) UpdateMultiple(filter any, data *T) (modifiedCount int, er
  * @return count int filter document count
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Count(filter any) (count int, err error) {
+func (e *Eloquent[T]) Count(ctx context.Context, filter any) (count int, err error) {
 	coll := e.GetCollection()
 
 	if filter == nil {
@@ -380,7 +378,7 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
 
 		count = int(estCount)
 	} else {
-		countD, errD := coll.CountDocuments(context.TODO(), filter)
+		countD, errD := coll.CountDocuments(ctx, filter)
 		if errD != nil {
 			err = e.errMsg(errD)
 			logger.LogDebug.Error(e.logTitle, errD, getCurrentFuncInfo(1))
@@ -402,10 +400,10 @@ func (e *Eloquent[T]) Count(filter any) (count int, err error) {
  * @return pagination *pagination[T]
  * @return err error fail message from query
  */
-func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagination[T], err error) {
+func (e *Eloquent[T]) Paginate(ctx context.Context, limit int, page int, filter any) (paginated *Pagination[T], err error) {
 	coll := e.GetCollection()
 
-	total, totalErr := e.Count(filter)
+	total, totalErr := e.Count(ctx, filter)
 	if totalErr != nil {
 		err = e.errMsg(totalErr)
 		logger.LogDebug.Error(e.logTitle, totalErr, getCurrentFuncInfo(1))
@@ -453,7 +451,7 @@ func (e *Eloquent[T]) Paginate(limit int, page int, filter any) (paginated *Pagi
 	findOptions.SetSort(bson.M{"created_at": -1})
 	findOptions.SetLimit(int64(limit))
 	findOptions.SetSkip(int64(limit * (page - 1)))
-	ctx := context.TODO()
+
 	cursor, errF := coll.Find(ctx, filter, findOptions)
 	if errF != nil {
 		logger.LogDebug.Error(e.logTitle, errF, getCurrentFuncInfo(1))

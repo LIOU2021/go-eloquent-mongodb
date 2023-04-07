@@ -12,7 +12,6 @@
 開發的後期，因為model與ORM本身的依賴與責任設計的不良，也時常導致出現一堆model混亂的場景，本ORM將會克服此情境。
 
 # todo
-- refactory IEloquent 方法提供ctx arg
 - createIndex and ttl
 	- ref
 		- https://christiangiacomi.com/posts/mongodb-index-using-go/
@@ -50,7 +49,7 @@ func main() {
 
 	userOrm := orm.NewEloquent[User]("users")
 	id := "642d5b2298ba2bb73c55e5c4"
-	user, err := userOrm.Find(id)
+	user, err := userOrm.Find(context.Background(), id)
 
 	if err != nil {
 		log.Fatal("user id not found !")

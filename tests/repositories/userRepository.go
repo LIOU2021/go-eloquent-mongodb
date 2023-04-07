@@ -22,7 +22,7 @@ func (repo *UserRepository) GetUnderage(age int) (users []*models.User, err erro
 	filter := bson.M{
 		"age": bson.M{"$lt": age},
 	}
-	users, err = repo.Orm.FindMultiple(filter)
+	users, err = repo.Orm.FindMultiple(context.Background(), filter)
 	return
 }
 

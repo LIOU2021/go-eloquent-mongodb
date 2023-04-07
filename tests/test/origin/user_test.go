@@ -44,7 +44,7 @@ func Test_User_Insert_A_Document(t *testing.T) {
 		CreatedAt: &currentTime,
 		UpdatedAt: &currentTime,
 	}
-	insertId, err := userOrm.Insert(data)
+	insertId, err := userOrm.Insert(context.Background(), data)
 	logger.LogDebug.Info("insertId : ", insertId)
 
 	testId = insertId
@@ -74,7 +74,7 @@ func Test_User_Insert_Multiple(t *testing.T) {
 		})
 	}
 
-	InsertedIDs, err := userOrm.InsertMultiple(data)
+	InsertedIDs, err := userOrm.InsertMultiple(context.Background(), data)
 	logger.LogDebug.Info("InsertedIDs  : ", InsertedIDs)
 
 	assert.NoError(t, err, "insertMultiple not ok")
@@ -83,7 +83,7 @@ func Test_User_Insert_Multiple(t *testing.T) {
 
 func Test_User_Find_A_Document(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
-	userFind, err := userOrm.Find(testId)
+	userFind, err := userOrm.Find(context.Background(), testId)
 	assert.NotNil(t, userFind, "userFind was nil")
 	assert.NoError(t, err, "find not ok")
 	if userFind != nil {
@@ -98,7 +98,7 @@ func Test_User_Find_Multiple_Document(t *testing.T) {
 
 	ageCondition := 30
 
-	userFindMultiple, err := userOrm.FindMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	userFindMultiple, err := userOrm.FindMultiple(context.Background(), bson.M{"age": bson.M{"$lte": ageCondition}})
 	assert.NoError(t, err, "findMultiple not ok")
 	for _, value := range userFindMultiple {
 		assert.True(t, *value.ID != "", "id not find")
@@ -114,7 +114,7 @@ func Test_User_Find_Multiple_Document_With_Option(t *testing.T) {
 	ageCondition := 30
 	opts := options.Find().SetSort(bson.M{"created_at": -1})
 	filter := bson.M{"age": bson.M{"$lte": ageCondition}}
-	userFindMultiple, err := userOrm.FindMultiple(filter, opts)
+	userFindMultiple, err := userOrm.FindMultiple(context.Background(), filter, opts)
 	assert.NoError(t, err, "findMultiple not ok")
 	preCreatedAt := int64(0)
 	for index, value := range userFindMultiple {
@@ -133,7 +133,7 @@ func Test_User_All(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	userAll, err := userOrm.All()
+	userAll, err := userOrm.All(context.Background())
 	assert.NoError(t, err, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	for i, v := range userAll {
@@ -146,7 +146,7 @@ func Test_User_All_With_Option(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	opts := options.Find().SetSort(bson.M{"created_at": -1})
-	userAll, err := userOrm.All(opts)
+	userAll, err := userOrm.All(context.Background(), opts)
 	assert.NoError(t, err, "all not ok")
 	assert.GreaterOrEqual(t, len(userAll), 1, "no data")
 	preCreatedAt := int64(0)
@@ -173,11 +173,11 @@ func Test_User_Update_A_Document_By_Full(t *testing.T) {
 		Age:       &age,
 		UpdatedAt: &currentTime,
 	}
-	updateCount, err := userOrm.Update(testId, data)
+	updateCount, err := userOrm.Update(context.Background(), testId, data)
 	assert.NoError(t, err, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
-	user, userErr := userOrm.Find(testId)
+	user, userErr := userOrm.Find(context.Background(), testId)
 	assert.NoError(t, userErr, "updateCount for find user not ok")
 	assert.Equal(t, name, *user.Name, "update name not working")
 	assert.Equal(t, age, *user.Age, "update age not working")
@@ -194,11 +194,11 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 		Age: &age,
 	}
 
-	updateCount, err := userOrm.Update(testId, data)
+	updateCount, err := userOrm.Update(context.Background(), testId, data)
 	assert.NoError(t, err, "updateCount not ok")
 	assert.Equal(t, 1, updateCount, "update not ok")
 
-	user, userErr := userOrm.Find(testId)
+	user, userErr := userOrm.Find(context.Background(), testId)
 	assert.NoError(t, userErr, "updateCount for find user not ok")
 	assert.True(t, "" != *user.Name, "name was change")
 	assert.True(t, 0 != *user.CreatedAt, "CreatedAt was change")
@@ -209,7 +209,7 @@ func Test_User_Update_A_Document_By_Part(t *testing.T) {
 func Test_User_Count_All(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
-	count, err := userOrm.Count(nil)
+	count, err := userOrm.Count(context.Background(), nil)
 	assert.NoError(t, err, "count not ok")
 	assert.GreaterOrEqual(t, count, 6, "count not working")
 	t.Logf("total count : %d", count)
@@ -219,7 +219,7 @@ func Test_User_Count_Filter(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 	filter := bson.M{"age": bson.M{"$lte": 30}} //less than or equal 30
-	count, err := userOrm.Count(filter)
+	count, err := userOrm.Count(context.Background(), filter)
 	assert.NoError(t, err, "count not ok")
 	assert.GreaterOrEqual(t, count, 3, "count not working")
 	t.Logf("filter count : %d", count)
@@ -230,7 +230,7 @@ func Test_User_Paginate_Full(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 	currentPage := 2
 	limit := 3
-	pagination, err := userOrm.Paginate(limit, currentPage, bson.M{})
+	pagination, err := userOrm.Paginate(context.Background(), limit, currentPage, bson.M{})
 	assert.NoError(t, err, "paginate not ok")
 	t.Logf("pagination response : %+v", pagination)
 	assert.Equal(t, 4, pagination.LastPage, "lastPage err")
@@ -260,7 +260,7 @@ func Test_User_Paginate_Filter(t *testing.T) {
 	currentPage := 2
 	limit := 4
 	filter := bson.M{"age": bson.M{"$gte": 30}}
-	pagination, err := userOrm.Paginate(limit, currentPage, filter)
+	pagination, err := userOrm.Paginate(context.Background(), limit, currentPage, filter)
 	assert.NoError(t, err, "paginate not ok")
 	t.Logf("pagination response : %+v", pagination)
 	assert.Equal(t, 2, pagination.LastPage, "lastPage err")
@@ -305,11 +305,11 @@ func Test_User_Update_Multiple_Document_By_Full(t *testing.T) {
 
 	ageCondition := 30
 	filter := bson.M{"age": bson.M{"$lte": ageCondition}}
-	updateCount, err := userOrm.UpdateMultiple(filter, data)
+	updateCount, err := userOrm.UpdateMultiple(context.Background(), filter, data)
 	assert.NoError(t, err, "updateCount not ok")
 	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
 	t.Log("UpdateMultiple Count : ", updateCount)
-	userFindMultiple, err := userOrm.FindMultiple(bson.M{"name": name})
+	userFindMultiple, err := userOrm.FindMultiple(context.Background(), bson.M{"name": name})
 	assert.NoError(t, err, "findMultiple not ok")
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
@@ -331,11 +331,11 @@ func Test_User_Update_Multiple_Document_By_Part(t *testing.T) {
 
 	ageCondition := 30
 	filter := bson.M{"age": bson.M{"$gte": ageCondition}}
-	updateCount, err := userOrm.UpdateMultiple(filter, data)
+	updateCount, err := userOrm.UpdateMultiple(context.Background(), filter, data)
 	assert.NoError(t, err, "updateCount not ok")
 	assert.GreaterOrEqual(t, updateCount, 1, "update multiple not ok")
 	t.Log("UpdateMultiple Count : ", updateCount)
-	userFindMultiple, err := userOrm.FindMultiple(bson.M{"name": name})
+	userFindMultiple, err := userOrm.FindMultiple(context.Background(), bson.M{"name": name})
 	assert.NoError(t, err, "findMultiple not ok")
 
 	assert.Equal(t, updateCount, len(userFindMultiple), "update count not match")
@@ -350,7 +350,7 @@ func Test_User_Delete_A_Document(t *testing.T) {
 
 	userOrm := orm.NewEloquent[models.User]("users")
 
-	deleteCount, err := userOrm.Delete(testId)
+	deleteCount, err := userOrm.Delete(context.Background(), testId)
 	assert.NoError(t, err, "delete not ok")
 	assert.Equal(t, 1, deleteCount, "delete not working")
 }
@@ -360,7 +360,7 @@ func Test_User_Delete_Multiple_Document(t *testing.T) {
 	userOrm := orm.NewEloquent[models.User]("users")
 
 	ageCondition := 99999
-	deleteCount, err := userOrm.DeleteMultiple(bson.M{"age": bson.M{"$lte": ageCondition}})
+	deleteCount, err := userOrm.DeleteMultiple(context.Background(), bson.M{"age": bson.M{"$lte": ageCondition}})
 	assert.NoError(t, err, "delete not ok")
 	assert.Greater(t, deleteCount, 1, "deleteMultiple not working")
 	t.Logf("DeleteMultiple : %d", deleteCount)
