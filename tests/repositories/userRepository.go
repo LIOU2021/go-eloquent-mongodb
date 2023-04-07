@@ -9,12 +9,12 @@ import (
 )
 
 type UserRepository struct {
-	Orm orm.IEloquent[models.User]
+	orm.IEloquent[models.User]
 }
 
 func NewUserRepository() *UserRepository {
 	return &UserRepository{
-		Orm: orm.NewEloquent[models.User]("users"),
+		IEloquent: orm.NewEloquent[models.User]("users"),
 	}
 }
 
@@ -22,12 +22,12 @@ func (repo *UserRepository) GetUnderage(age int) (users []*models.User, err erro
 	filter := bson.M{
 		"age": bson.M{"$lt": age},
 	}
-	users, err = repo.Orm.FindMultiple(context.Background(), filter)
+	users, err = repo.FindMultiple(context.Background(), filter)
 	return
 }
 
 func (repo *UserRepository) GetOverage(age int) (users []*models.User, err error) {
-	coll := repo.Orm.GetCollection()
+	coll := repo.GetCollection()
 
 	filter := bson.M{"age": bson.M{"$gt": age}}
 	cursor, errF := coll.Find(context.TODO(), filter)
