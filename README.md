@@ -1,3 +1,5 @@
+[![Go Reference](https://pkg.go.dev/badge/golang.org/x/pkgsite.svg)](https://pkg.go.dev/github.com/LIOU2021/go-eloquent-mongodb)
+
 # 做此專案的動機
 在實務開發上，時常遇到專案ORM架構不優雅的案例。
 比如說簡單的All, Find功能，這在所有的模型都是一樣的邏輯，只是換了張表或是collection。
