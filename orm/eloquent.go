@@ -137,7 +137,7 @@ func (e *Eloquent[T]) All(ctx context.Context, opts ...*options.FindOptions) (mo
 
 	for cursor.Next(ctx) {
 		model := new(T)
-		if errNext := cursor.Decode(&model); err != nil {
+		if errNext := cursor.Decode(&model); errNext != nil {
 			logger.LogDebug.Error(e.logTitle, errNext, getCurrentFuncInfo(1))
 			err = e.errMsg(errNext)
 			return
@@ -145,7 +145,7 @@ func (e *Eloquent[T]) All(ctx context.Context, opts ...*options.FindOptions) (mo
 		models = append(models, model)
 	}
 
-	if errC := cursor.Err(); err != nil {
+	if errC := cursor.Err(); errC != nil {
 		logger.LogDebug.Error(e.logTitle, errC, getCurrentFuncInfo(1))
 		err = e.errMsg(errC)
 		return
